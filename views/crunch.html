@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>crunchsquare</title>
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/jquery-ui-1.10.3.custom.css" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.css" /
+    >
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.theme.css" /
+    >
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.icons.css" /
+    >
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/font-awesome.css" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/crunch.css" />
+</head>
+<body class='text thin'>
+    <header class='bck light paddding'>
+        <form>
+            <div class='row'>
+                <div class='column_4 origin'>
+                    <input type='text' class='search' data-from=".origin .from" placeholder='Depart at...' />
+
+                    <input type='hidden' class='date from' data-trigger='.origin .button.on' />
+                    <a href='#' class='button on'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>On</span>
+                    </a>
+                </div>
+
+                <div class='column_8 destination'>
+                    <input type='text' class='search' placeholder='Go to...' data-from=".destination .from" data-till=".destination .till" />
+
+                    <input type='hidden' class='date from' data-trigger='.destination .button.from' />
+                    <a href='#' class='button from'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>From</span>
+                    </a>
+
+                    <input type='hidden' class='date till' data-trigger='.destination .button.till' />
+                    <a href='#' class='button till'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>Till</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </header>
+
+    <div class='map'>
+        <div class='origin'></div>
+        <div class='divider bck dark'>
+            <a class='button secondary icon group'></a>
+            <a class='button secondary icon inbox'></a>
+            <a class="button secondary icon facebook"></a>
+        </div>
+        <div class='slider bck color'></div>
+        <div class='destination'></div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&libraries=places"></script>
+    <script type="text/javascript" src="js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src='js/lib/jquery-ui-1.10.3.custom.min.js'></script>
+    <script type="text/javascript" src="js/lib/tuktuk.js"></script>
+    <script type="text/javascript" src='js/crunch.js'></script>
+</body>
+</html>

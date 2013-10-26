@@ -1,7 +1,8 @@
 var request = require('request');
-var token = "";
 
 module.exports = function (app, config) {
+
+  var token = "";
 
   function createUrl(baseUrl, params) {
     params = params || {};
@@ -19,7 +20,11 @@ module.exports = function (app, config) {
   }
 
   app.get('/', function (req, res) {
-    res.render('index');
+    if (req.session.access_token) {
+      res.render('index2');
+    } else {
+      res.redirect("/login");
+    }
   });
 
   app.get('/login', function (req, res) {
@@ -45,6 +50,7 @@ module.exports = function (app, config) {
     request(accessTokenUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var result = JSON.parse(body);
+        req.session.access_token = result.access_token;
         token = result.access_token;
         res.redirect("/");
       }
@@ -56,7 +62,7 @@ module.exports = function (app, config) {
     request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var result = JSON.parse(body);
-        res.send(body);
+        res.send(result.response.user.friends.groups[1].items);
       }
     });
   });
@@ -75,10 +81,62 @@ module.exports = function (app, config) {
   app.get('/venue', function (req, res) {
     var params = {
       "ll": req.query.lat + "," + req.query.lng,
-      "categoryId": "4bf58dd8d48988d1fa931735"
+      "categoryId": "4eb1bc533b7b2c5b1d4306cb",
+      "query": "Lufthansa"
       // "intent": "browse"
     };
     var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
+    request(venueUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        // var result = body.response.venues;
+        // console.log(result);
+        res.send(result);
+      }
+    });
+  });
+
+  function getDistance(lat1,lon1,lat2,lon2) {
+    var R = 6371; // km
+    var dLat = (lat2-lat1) * Math.PI / 180;
+    var dLon = (lon2-lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  Array.prototype.in_array = function (value) {
+    return (this.indexOf(value) !== -1);
+  };
+
+  Array.prototype.push_unique = function (value) {
+    if (!this.in_array(value)) {
+      this.push(value);
+    }
+  };
+
+  app.get('/recent', function (req, res) {
+    var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
+    request(venueUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var data = JSON.parse(body).response.recent;
+        var result = [];
+        for (var i = 0; i < data.length; i++) {
+          var location = data[i].venue.location;
+          var distance = getDistance(location.lat, location.lng, req.query.lat, req.query.lng);
+          if (distance <= 25) {
+            result.push_unique(data[i].user.firstName + " " + data[i].user.lastName);
+          }
+        }
+        res.send(result);
+      }
+    });
+  });
+
+  app.get('/friendsInCity', function (req, res) {
+    var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
     request(venueUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var result = JSON.parse(body);

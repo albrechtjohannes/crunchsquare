@@ -16,6 +16,8 @@ app.configure(function() {
   app.set('view engine', 'html');
   app.use(express.static(__dirname + '/views'));
   app.engine('html', require('ejs').renderFile);
+  app.use(express.cookieParser());
+  app.use(express.session({ cookie: {maxAge: 86400000 }, secret: "keyboard cat"}));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
