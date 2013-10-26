@@ -101,20 +101,18 @@
                     till: $(dom.data("till")).val()
                 },
                 success: function(data) {
-                    $.each(data.groups, function() {
-                        $.each(this.items, function() {
-                            var venue = this.venue;
-                            var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
+                    $.each(data.response.venues, function() {
+                        var venue = this;
+                        var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
 
-                            addMarker(target, location, {
-                                name: venue.name,
-                                phone: venue.contact.formattedPhone,
-                                web: venue.url,
-                                address: {
-                                    street: venue.location.address,
-                                    city: venue.location.city
-                                }
-                            });
+                        addMarker(target, location, {
+                            name: venue.name,
+                            phone: venue.contact.formattedPhone,
+                            web: venue.url,
+                            address: {
+                                street: venue.location.address,
+                                city: venue.location.city
+                            }
                         });
                     });
                 }
