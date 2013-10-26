@@ -51,4 +51,37 @@ header {
 
 .ui-datepicker {
     margin-top: 40px;
+
+    border: none;
+
+    @theme-color: #a7babe;
+    @highlight-color: #1abc9c;
+
+    border-color: @theme-color;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0 20px;
+
+    .ui-datepicker-header {
+        background: @theme-color;
+
+        .ui-datepicker-prev,
+        .ui-datepicker-next {
+            margin: 8px;
+        }
+    }
+
+    .ui-datepicker-calendar {
+        border: none;
+
+        .ui-state-active,
+        .ui-state-highlight {
+            background-color: @highlight-color;
+
+            color: #fff;
+        }
+
+        .ui-state-hover {
+            background-color: @highlight-color !important;
+            border-color: @highlight-color !important;
+        }
+    }
 }

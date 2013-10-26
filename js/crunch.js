@@ -1,5 +1,7 @@
 (function() {
 
+    var markers = [];
+
     var getAutocompleter = function(selector) {
         return new google.maps.places.Autocomplete($(selector).get(0), {
             types: ["geocode"]
@@ -10,11 +12,42 @@
         return new google.maps.Map($(selector).get(0), options);
     };
 
+    var addMarker = function(map, position) {
+        markers.push(new google.maps.Marker({
+            position: position,
+            map: map
+        }));
+    };
+
+    var clearMap = function(map) {
+        $.each(markers, function() {
+            if(this.getMap() === map) {
+                this.setMap(null);
+            }
+        });
+    };
+
     var registerUpdater = function(input, target) {
         google.maps.event.addListener(input, "place_changed", function() {
             var place = input.getPlace();
 
-            target.setCenter(place.geometry.location);
+            if(!place.geometry) {
+                return;
+            }
+
+            var location = place.geometry.location;
+
+            target.setCenter(location);
+
+            clearMap(target);
+            addMarker(target, location);
+
+            $.ajax("/venue", {
+                data: location,
+                success: function() {
+                    console.log("foo");
+                }
+            })
         });
     };
 
