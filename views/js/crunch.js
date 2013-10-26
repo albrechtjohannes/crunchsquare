@@ -43,11 +43,15 @@
             addMarker(target, location);
 
             $.ajax("/venue", {
-                data: location,
-                success: function() {
+                data: {
+                    lng: location.lb,
+                    lat: location.mb
+                },
+                success: function(data) {
+                    console.log(data);
                     console.log("foo");
                 }
-            })
+            });
         });
     };
 

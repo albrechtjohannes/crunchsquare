@@ -5,7 +5,8 @@
     "express": ">= 3.3.1",
     "mongoose": ">= 3.6.13",
     "request": ">= 1.2.32",
-    "node-foursquare": ">= 0.2.0"
+    "node-foursquare": ">= 0.2.0",
+    "ejs": ">= 0.8.4"
   },
   "engines": {
     "node": "0.10.x",
