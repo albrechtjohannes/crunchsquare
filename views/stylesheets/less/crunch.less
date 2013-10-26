@@ -53,17 +53,27 @@ header {
         float: left;
     }
 
+    @origin-width: 34%;
+
     .origin {
-        width: 34%;
+        width: @origin-width;
     }
 
+    @divider-width: 50px;
+
     .divider {
-        width: 50px;
+        width: @divider-width;
         text-align: center;
+
+        box-shadow: 2px 0px 0 rgba(0, 0, 0, 0.2), -2px 0 0 rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+
         a {
             width: 36px;
             height: 36px;
             margin-top: 10px;
+
             &.facebook {
                 background-color: #417cb3;
             }
@@ -72,14 +82,15 @@ header {
 
     .slider {
         position: absolute;
-        width: 34%;
+        width: @origin-width;
         height: 100%;
         display: none;
         float: left;
     }
 
     .destination {
-        width: ~"calc(66% - 50px)";
+        @destination-width: 100% - @origin-width;
+        width: ~"calc(@{destination-width} - @{divider-width})";
     }
 }
 

@@ -128,7 +128,10 @@
     }
 
     $(document).ready(function() {
-        $(".map").height($("body").height() - $("header").height() - (2 * parseInt($("header").css("padding"))));
+        var contentHeight = $("body").height() - $("header").height() - (2 * parseInt($("header").css("padding")));
+
+        $(".map").height(contentHeight);
+        $(".slider").height(contentHeight);
 
         var mapOptions = {
             zoom: 12,
