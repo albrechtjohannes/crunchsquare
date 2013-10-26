@@ -4,19 +4,47 @@ html, body {
 }
 
 header {
+    position: relative;
     text-align: center;
+
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+
+    z-index: 1;
 
     padding: 20px;
 
     form {
+        .column_6 {
+            text-align: center;
+        }
+
         input {
             &[type=text] {
-                width: 400px;
+                width: 200px;
             }
+        }
+
+        .search-button {
+            margin-left: 20px;
         }
     }
 }
 
-.content {
+.origin, .destination {
+    width: 50%;
+}
 
+.origin {
+    border-right: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.destination {
+    border-left: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.map {
+    .origin, .destination {
+        height: 100%;
+        float: left;
+    }
 }

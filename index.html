@@ -2,6 +2,8 @@
 <head>
     <title>crunchsquare</title>
 
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/jquery-ui-1.10.3.custom.css" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/date.theme.css" />
     <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.css" /
     >
     <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.theme.css" /
@@ -13,16 +15,29 @@
 <body class='text thin'>
     <header class='bck light paddding'>
         <form>
-            <input type='text' placeholder='Search for a place...' />
-            <a href='#' class='button'>
-                <span class='icon search'></span>
-                Search
-            </a>
+            <div class='row'>
+                <div class='column_6'>
+                    <input type='text' class='origin' placeholder='Depart at...' />
+                    <a href='#' class='button icon calendar'></a>
+                </div>
+
+                <div class='column_6'>
+                    <input type='text' class='destination' placeholder='Go to...' />
+                    <a href='#' class='button icon calendar'></a>
+                </div>
+            </div>
         </form>
     </header>
-    <div class='content'></div>
 
+    <div class='map'>
+        <div class='origin'></div>
+        <div class='destination'></div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true&libraries=places"></script>
     <script type="text/javascript" src="js/lib/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src='js/lib/jquery-ui-1.10.3.custom.min.js'></script>
     <script type="text/javascript" src="js/lib/tuktuk.js"></script>
+    <script type="text/javascript" src='js/crunch.js'></script>
 </body>
 </html>
