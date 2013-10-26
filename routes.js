@@ -13,7 +13,7 @@ module.exports = function (app, foursquare) {
         token = accessToken;
       }
     });
-    res.send("Hallo");
+    res.render('index');
   });
 
   app.get('/login', function (req, res) {
@@ -21,8 +21,28 @@ module.exports = function (app, foursquare) {
     res.end();
   });
 
+
+  //
   app.get('/friends', function (req, res) {
-    // foursquare.getFriends()
-    res.send('Friends');
+    foursquare.Users.getFriends(null, null, token, function(error, result) {
+      if (error) {
+        res.send('An error was thrown: ' + error.message);
+      } else {
+        res.send(result);
+      }
+    });
   });
+
+  app.get('/venue', function (req, res) {
+    var lat = req.query.lat;
+    var lon = req.query.lng;
+    foursquare.Venues.explore(lat, lon, null, token, function(error, result) {
+      if (error) {
+        res.send('An error was thrown: ' + error.message);
+      } else {
+        res.send(result);
+      }
+    });
+  });
+
 };
