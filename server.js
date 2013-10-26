@@ -6,9 +6,9 @@ var application_root = __dirname,
     fs = require('fs'),
     config = { 'secrets':
       {
-        'clientId': 'CQ1NUEWBDPBHI3B5DMUST3JVNL4ZHD5ASQ034BYX3L1PCS05',
-        'clientSecret': 'PSVCXFSCXG2LSGHQEZ2JS0QPIKRHNFZ3IXWGCP5LW1T3DYBQ',
-        'redirectUrl': 'http://localhost:5000/'
+        'clientId': 'LDBNDR0RMFMATKC20N3QYHZRJBZO5NWFBXB20QZTF5QWJTWF',
+        'clientSecret': '0WB3W4CMLLV20WV2GMDGJB1ZH21CX2VOTKW50Z11J3MQLUXG',
+        'redirectUrl': 'http://localhost:5000'
       }
     },
     foursquare = require("node-foursquare")(config);
@@ -41,9 +41,6 @@ var options = {
 
 // Setup routes
 require("./routes")(app, foursquare);
-
-// http.createServer(app).listen(5000);
-// https.createServer(options, app).listen(5001);
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
