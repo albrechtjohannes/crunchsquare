@@ -76,6 +76,7 @@ module.exports = function (app, config) {
     var params = {
       "ll": req.query.lat + "," + req.query.lng,
       "categoryId": "4bf58dd8d48988d1fa931735"
+      // "intent": "browse"
     };
     var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
     request(venueUrl, function (error, response, body) {
@@ -87,35 +88,39 @@ module.exports = function (app, config) {
       }
     });
   });
-    
+
   var models= require('./models.js');
   app.post('/saveCheckIn', function(req, res) {
     var from = req.body.fromDate.split('/');
+    var newCheckIn;
     if (req.param('toDate')) {
-        var to = req.body.toDate.split('/');
-        var newCheckIn = new models.PreCheckIn({
-            userId: req.body.userId,
-            venueId: req.body.venueId,
-            fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
-            toDate: new Date(to[0],to[1], to[2], to[3], to[4], '00'),
-        })}
-    else {
-        var newCheckIn = new models.PreCheckIn({
-            userId: req.body.userId,
-            venueId: req.body.venueId,
-            fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
-        })}
+      var to = req.body.toDate.split('/');
+      newCheckIn = new models.PreCheckIn({
+        userId: req.body.userId,
+        venueId: req.body.venueId,
+        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
+        toDate: new Date(to[0],to[1], to[2], to[3], to[4], '00'),
+      });
+    } else {
+      newCheckIn = new models.PreCheckIn({
+        userId: req.body.userId,
+        venueId: req.body.venueId,
+        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
+      });
+    }
     newCheckIn.save(function(err) {
-        if (err) {console.log(err);}
-        else {return res;}
-        }
-    );
+      if (err) {
+        return console.log(err);
+      } else {
+        return console.log("created");
+      }
+    });
+    res.send(newCheckIn);
   });
 
   app.get('/findOne', function(req, res) {
-      models.PreCheckIn.find({ venueId: 456 }).exec(function(err, checkin) {
-        console.log(err);
-        console.log(checkin);
-        });
-      })
+    models.PreCheckIn.find({ venueId: 456 }).exec(function(err, checkin) {
+        res.send(checkin);
+      });
+    });
 };

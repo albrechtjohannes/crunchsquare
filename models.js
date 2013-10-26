@@ -7,4 +7,4 @@ var checkInSchema = mongoose.Schema({
     toDate: {type: Date}
     });
 
-exports.PreCheckIn = mongoose.model('CheckIn', checkInSchema)
+exports.PreCheckIn = mongoose.model('CheckIn', checkInSchema);
