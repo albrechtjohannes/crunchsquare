@@ -122,6 +122,11 @@
         });
     };
 
+    var toggleSlider = function(content) {
+        $(".slider").html(content);
+        $(".slider").toggle("slide", {direction: "right"});
+    }
+
     $(document).ready(function() {
         $(".map").height($("body").height() - $("header").height() - (2 * parseInt($("header").css("padding"))));
 
@@ -160,6 +165,14 @@
             trigger.click(function() {
                 input.datepicker("show");
             });
+        });
+
+        $(".divider .group").on("click", function() {
+            toggleSlider();
+        });
+
+        $(".divider .inbox").on("click", function() {
+            toggleSlider();
         });
     });
 
