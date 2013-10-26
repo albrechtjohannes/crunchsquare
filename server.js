@@ -15,9 +15,10 @@ var app = express();
 // Configure server
 app.configure(function() {
   app.set('views', __dirname + '/views');
-  app.engine('.html', require('ejs').__express);
+  //app.engine('.html', require('ejs').__express);
   app.set('view engine', 'html');
   app.use(express.static(__dirname + '/views'));
+  app.engine('html', require('ejs').renderFile);
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
