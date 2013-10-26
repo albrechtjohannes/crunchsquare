@@ -1,14 +1,11 @@
 var application_root = __dirname,
     express = require("express"),
     mongoose = require('mongoose'),
-    config = { 'secrets':
-      {
-        'clientId': 'LDBNDR0RMFMATKC20N3QYHZRJBZO5NWFBXB20QZTF5QWJTWF',
-        'clientSecret': '0WB3W4CMLLV20WV2GMDGJB1ZH21CX2VOTKW50Z11J3MQLUXG',
-        'redirectUrl': 'http://localhost:5000'
-      }
-    },
-    foursquare = require("node-foursquare")(config);
+    config = {
+      'clientId': 'PSK5SC5EPW2DJ2CA5OQI5CBFMMFOH3UGKZZ0IEBQLEIYNVOW',
+      'clientSecret': 'QVYG524JV02VUJTYLFC2CAIO5W544R30XCRESYB04NN0GYKE',
+      'redirectUrl': 'http://localhost:5000/auth'
+    };
 
 var app = express();
 
@@ -36,7 +33,7 @@ mongoose.connect(mongoUri, function (err, res) {
 });
 
 // Setup routes
-require("./routes")(app, foursquare);
+require("./routes")(app, config);
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
