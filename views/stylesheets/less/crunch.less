@@ -3,6 +3,8 @@ html, body {
     padding: 0;
 }
 
+@color-blue: #417cb3;
+
 header {
     position: relative;
     text-align: center;
@@ -30,6 +32,29 @@ header {
     }
 }
 
+#checkin-dialog {
+    fieldset {
+        margin-top: 10px;
+
+        label {
+            position: relative;
+            z-index: 1;
+        }
+    }
+
+    footer {
+        text-align: right;
+
+        button {
+            margin-left: 10px;
+
+            &.checkin {
+                background-color: @color-blue;
+            }
+        }
+    }
+}
+
 .info {
     .header {
         margin-bottom: 10px;
@@ -40,9 +65,15 @@ header {
 
     .content {
         .button {
-            display: inline-block;
+            display: block;
 
-            background-color: #417cb3;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            margin-left: 20px;
+
+            min-width: 230px;
+
+            background-color: @color-blue;
         }
     }
 }
@@ -104,6 +135,8 @@ header {
 
     border-color: @theme-color;
     box-shadow: rgba(0, 0, 0, 0.2) 0px 0 20px;
+
+    z-index: 9999 !important;
 
     .ui-datepicker-header {
         background: @theme-color;
