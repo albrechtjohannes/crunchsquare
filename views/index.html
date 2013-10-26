@@ -9,14 +9,15 @@
     >
     <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/tuktuk.icons.css" /
     >
+    <link rel="stylesheet" type="text/css" href="stylesheets/css/lib/font-awesome.css" />
     <link rel="stylesheet" type="text/css" href="stylesheets/css/crunch.css" />
 </head>
 <body class='text thin'>
     <header class='bck light paddding'>
         <form>
             <div class='row'>
-                <div class='column_6 origin'>
-                    <input type='text' class='search' placeholder='Depart at...' />
+                <div class='column_4 origin'>
+                    <input type='text' class='search' data-from=".origin .from" placeholder='Depart at...' />
 
                     <input type='hidden' class='date from' data-trigger='.origin .button.on' />
                     <a href='#' class='button on'>
@@ -25,8 +26,8 @@
                     </a>
                 </div>
 
-                <div class='column_6 destination'>
-                    <input type='text' class='search' placeholder='Go to...' />
+                <div class='column_8 destination'>
+                    <input type='text' class='search' placeholder='Go to...' data-from=".destination .from" data-till=".destination .till" />
 
                     <input type='hidden' class='date from' data-trigger='.destination .button.from' />
                     <a href='#' class='button from'>
@@ -46,6 +47,12 @@
 
     <div class='map'>
         <div class='origin'></div>
+        <div class='divider bck dark'>
+            <a class='button secondary icon group'></a>
+            <a class='button secondary icon inbox'></a>
+            <a class="button secondary icon facebook"></a>
+        </div>
+        <div class='slider bck color'></div>
         <div class='destination'></div>
     </div>
 

@@ -30,22 +30,67 @@ header {
     }
 }
 
+.info {
+    .header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+
+        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .content {
+        .button {
+            display: inline-block;
+
+            background-color: #417cb3;
+        }
+    }
+}
+
 .map {
-    .origin, .destination {
+    .origin, .divider, .destination {
         height: 100%;
         float: left;
     }
 
-    .origin, .destination {
-        width: 50%;
-    }
+    @origin-width: 34%;
 
     .origin {
-        border-right: 2px solid rgba(0, 0, 0, 0.5);
+        width: @origin-width;
+    }
+
+    @divider-width: 50px;
+
+    .divider {
+        width: @divider-width;
+        text-align: center;
+
+        box-shadow: 2px 0px 0 rgba(0, 0, 0, 0.2), -2px 0 0 rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+
+        a {
+            width: 36px;
+            height: 36px;
+            margin-top: 10px;
+
+            &.facebook {
+                background-color: #417cb3;
+            }
+        }
+    }
+
+    .slider {
+        position: absolute;
+        width: @origin-width;
+        height: 100%;
+        display: none;
+        float: left;
     }
 
     .destination {
-        border-left: 2px solid rgba(0, 0, 0, 0.5);
+        @destination-width: 100% - @origin-width;
+        width: ~"calc(@{destination-width} - @{divider-width})";
     }
 }
 
@@ -72,9 +117,14 @@ header {
     .ui-datepicker-calendar {
         border: none;
 
+        .ui-state-default {
+            border: 0;
+            padding: 5px;
+        }
+
         .ui-state-active,
         .ui-state-highlight {
-            background-color: @highlight-color;
+            background-color: #2ecc71;
 
             color: #fff;
         }

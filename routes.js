@@ -1,46 +1,88 @@
-var token;
+var request = require('request');
+var token = "";
 
-module.exports = function (app, foursquare) {
+module.exports = function (app, config) {
+
+  function createUrl(baseUrl, params) {
+    params = params || {};
+    var url = baseUrl + "?";
+    for (var attr in params) {
+      url += attr + "=" + params[attr] + "&";
+    }
+    if (token) {
+      url += "oauth_token" + "=" + token + "&";
+    }
+    url += "v=20131116";
+    console.log(url);
+    console.log("-");
+    return url;
+  }
 
   app.get('/', function (req, res) {
-    res.send('HER');
-    foursquare.getAccessToken({
-      code: req.query.code
-    }, function (error, accessToken) {
-      if(error) {
-        res.send('An error was thrown: ' + error.message);
-      }
-      else {
-        token = accessToken;
-      }
-    });
     res.render('index');
   });
 
   app.get('/login', function (req, res) {
-    res.writeHead(303, {'location': foursquare.getAuthClientRedirectUrl() });
-    res.end();
+    var params = {
+      "client_id": config.clientId,
+      "response_type": "code",
+      "redirect_uri": config.redirectUrl
+    };
+    var authenticateUrl = createUrl("https://foursquare.com/oauth2/authenticate", params);
+    res.writeHead(303, {'location': authenticateUrl });
+    res.send();
   });
 
+  app.get('/auth', function (req, res) {
+    var params = {
+      "client_id": config.clientId,
+      "client_secret": config.clientSecret,
+      "grant_type": "authorization_code",
+      "redirect_uri": config.redirectUrl,
+      "code": req.query.code
+    };
+    var accessTokenUrl = createUrl("https://foursquare.com/oauth2/access_token", params);
+    request(accessTokenUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        token = result.access_token;
+        res.redirect("/");
+      }
+    });
+  });
 
-  //
   app.get('/friends', function (req, res) {
-    foursquare.Users.getFriends(null, null, token, function(error, result) {
-      if (error) {
-        res.send('An error was thrown: ' + error.message);
-      } else {
-        res.send(result);
+    var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
+    request(friendsUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        res.send(body);
+      }
+    });
+  });
+
+  // Airport 4bf58dd8d48988d1ed931735
+  app.get('/category', function (req, res) {
+    var categoriesUrl = createUrl("https://api.foursquare.com/v2/venues/categories");
+    request(categoriesUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        res.send(body);
       }
     });
   });
 
   app.get('/venue', function (req, res) {
-    var lat = req.query.lat;
-    var lon = req.query.lng;
-    foursquare.Venues.explore(lat, lon, null, token, function(error, result) {
-      if (error) {
-        res.send('An error was thrown: ' + error.message);
-      } else {
+    var params = {
+      "ll": req.query.lat + "," + req.query.lng,
+      "categoryId": "4bf58dd8d48988d1fa931735"
+    };
+    var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
+    request(venueUrl, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        // var result = body.response.venues;
+        // console.log(result);
         res.send(result);
       }
     });
