@@ -36,14 +36,29 @@
         originMap.setCenter(berlin);
         destinationMap.setCenter(berlin);
 
-        var origin = getAutocompleter("header .origin");
-        var destination = getAutocompleter("header .destination");
+        var origin = getAutocompleter("header .origin .search");
+        var destination = getAutocompleter("header .destination .search");
 
         registerUpdater(origin, originMap);
         registerUpdater(destination, destinationMap);
 
         $("form").submit(function() {
             return false;
+        });
+
+        $("form .date").each(function() {
+            var input = $(this);
+            input.datepicker({
+                onSelect: function(date) {
+                    trigger.children(".content").html(date);
+                }
+            });
+
+            var trigger = $(input.data("trigger"));
+
+            trigger.click(function() {
+                input.datepicker("show");
+            });
         });
     });
 

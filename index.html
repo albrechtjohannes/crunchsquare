@@ -16,14 +16,30 @@
     <header class='bck light paddding'>
         <form>
             <div class='row'>
-                <div class='column_6'>
-                    <input type='text' class='origin' placeholder='Depart at...' />
-                    <a href='#' class='button icon calendar'></a>
+                <div class='column_6 origin'>
+                    <input type='text' class='search' placeholder='Depart at...' />
+
+                    <input type='hidden' class='date from' data-trigger='.origin .button.on' />
+                    <a href='#' class='button on'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>On</span>
+                    </a>
                 </div>
 
-                <div class='column_6'>
-                    <input type='text' class='destination' placeholder='Go to...' />
-                    <a href='#' class='button icon calendar'></a>
+                <div class='column_6 destination'>
+                    <input type='text' class='search' placeholder='Go to...' />
+
+                    <input type='hidden' class='date from' data-trigger='.destination .button.from' />
+                    <a href='#' class='button from'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>From</span>
+                    </a>
+
+                    <input type='hidden' class='date till' data-trigger='.destination .button.till' />
+                    <a href='#' class='button till'>
+                        <span class='icon calendar'></span>
+                        <span class='content'>Till</span>
+                    </a>
                 </div>
             </div>
         </form>
