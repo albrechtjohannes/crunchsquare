@@ -122,6 +122,7 @@ module.exports = function (app, config) {
             var name = data[i].user.firstName + " " + data[i].user.lastName;
             if (!(name in result)) {
               result[name] = {
+                venueName: data[i].venue.name,
                 lat: data[i].venue.location.lat,
                 lng: data[i].venue.location.lng
               };
@@ -140,23 +141,27 @@ module.exports = function (app, config) {
         var user = JSON.parse(body).response.user;
         req.session.userId = user.id;
         req.session.userName = user.firstName + " " + user.lastName;
+        console.log(req.session);
       }
     });
   }
 
   var models= require('./models.js');
   app.post('/new', function(req, res) {
-    var toDate = null
-    if (req.param('toDate')) {toDate = new Date(req.body.toDate)}
+    var toDate = null;
+    if (req.param('toDate')) {
+      toDate = new Date(req.body.toDate);
+    }
     var newCheckIn = new models.PreCheckIn({
-        _userId: req.body.userId,
-        _venueId: req.body.venueId,
-        _fromDate: new Date(req.body.fromDate),
-        _toDate: toDate
-      });
+      //_userId: req.body.userId,
+      _userId: req.session.userId,
+      _venueId: req.body.venueId,
+      _fromDate: new Date(req.body.fromDate),
+      _toDate: toDate
+    });
     newCheckIn.save(function(err, data) {
       if (err) {
-        res.json(error);
+        res.json(err);
       } else {
         console.log("Added new CheckIn");
         res.statusCode = 201;
@@ -174,14 +179,17 @@ module.exports = function (app, config) {
     .where('_fromDate').lte(reqTo)
     .exec(function(err, data){
       if (err) {console.log(err);}
-      else if (data.length == 0) { console.log('No entries found.')}
+      else if (data.length === 0) {
+        console.log('No entries found.');
+      }
       else {
         var result = [];
         for (var i=0; i<data.length; i += 1) {
           if (!("_toDate" in data[i]))
             {result.push(data[i]); console.log('Added: ' + data[i]._fromDate + ' and no end.');}
-          else if (data[i]._toDate >= reqFrom)
-            {result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate)}
+          else if (data[i]._toDate >= reqFrom) {
+            result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate);
+          }
         }
         res.send(data);
       }
