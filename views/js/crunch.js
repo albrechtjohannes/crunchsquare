@@ -398,6 +398,10 @@
         $(".divider .inbox").on("click", function() {
             toggleSlider(".news");
         });
+
+        $(".divider .shopping-cart").on("click", function() {
+            toggleSlider(".offerings");
+        });
     });
 
 }());
