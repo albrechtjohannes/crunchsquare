@@ -224,9 +224,8 @@
                 fromDate: (new Date($(dom.data("from")).val())).toString(),
                 toDate: (new Date($(dom.data("till")).val())).toString()
             },
-            success: function(data) {
-                console.log(data);
-                $.each(data.response.venues, function() {
+            success: function(venues) {
+                $.each(venues, function() {
                     var venue = this;
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
 
@@ -274,7 +273,7 @@
 
     var createControls = function(kind, clb) {
         var options = {
-            zoom: 12,
+            zoom: 11,
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeId: google.maps.MapTypeId.ROADMAP

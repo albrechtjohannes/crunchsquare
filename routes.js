@@ -86,36 +86,66 @@ module.exports = function (app, config) {
 
     async.parallel([
       function(callback) {
-        if (!(req.query.fromDate !== "Invalid Date" || req.query.toDate !== "Invalid Date")) {
-          var params = {
-            "ll": req.query.lat + "," + req.query.lng,
-            "categoryId": "4eb1bc533b7b2c5b1d4306cb",
-            "query": "Lufthansa"
-            // "intent": "browse"
-          };
-          var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
-          request(venueUrl, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-              var result = JSON.parse(body);
-              callback(null, result.response.venues);
-            }
-          });
+        if (req.query.fromDate === "Invalid Date") {
+          if (req.query.toDate === "Invalid Date") {
+            var params = {
+              "ll": req.query.lat + "," + req.query.lng,
+              "categoryId": "4eb1bc533b7b2c5b1d4306cb",
+              "query": "Lufthansa"
+              // "intent": "browse"
+            };
+            var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
+            request(venueUrl, function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                var result = JSON.parse(body);
+                callback(null, result.response.venues);
+              }
+            });
+          } else {
+            callback(null, []);
+          }
         } else {
-          callback(null, []);
+          if (req.query.toDate === "Invalid Date") {
+            callback(null, []);
+          } else {
+            var params = {
+              "ll": req.query.lat + "," + req.query.lng,
+              "categoryId": "4eb1bc533b7b2c5b1d4306cb",
+              "query": "Lufthansa"
+              // "intent": "browse"
+            };
+            var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
+            request(venueUrl, function (error, response, body) {
+              if (!error && response.statusCode == 200) {
+                var result = JSON.parse(body);
+                callback(null, result.response.venues);
+              }
+            });
+          }
         }
       },
       function(callback) {
         if (req.query.fromDate !== "Invalid Date" && req.query.toDate !== "Invalid Date") {
-          callback(null, inTimeFrame(req));
+          inTimeFrame(req, callback);
         } else {
           callback(null, "");
         }
       }], function(err, results) {
-        console.log(results);
+          console.log(results);
         if (results[1] === "") {
           res.send(results[0]);
         } else {
-
+          var venues = results[0];
+          var people = results[1];
+          for (var i = 0; i < venues.length; i++) {
+            venues[i].preChecked = [];
+            for (var j = 0; j < people.length; j++) {
+              if (venues[i].id === people[j]._venueId) {
+                venues[i].preChecked.push(people[j]._userName);
+              }
+            }
+          }
+          res.send(results[0]);
         }
     });
   });
@@ -176,12 +206,15 @@ module.exports = function (app, config) {
     var newCheckIn = new models.PreCheckIn({
       //_userId: req.body.userId,
       _userId: req.session.userId,
+      _userName: req.session.userName,
       _venueId: req.body.venueId,
       _fromDate: new Date(req.body.fromDate),
       _toDate: toDate
     });
+    console.log(newCheckIn);
     newCheckIn.save(function(err, data) {
       if (err) {
+        console.log(err);
         res.json(err);
       } else {
         console.log("Added new CheckIn");
@@ -195,7 +228,7 @@ module.exports = function (app, config) {
     res.send(inTimeFrame(req, res));
   });
 
-  function inTimeFrame(req) {
+  function inTimeFrame(req, callback) {
     var reqFrom = new Date(req.query.fromDate);
     var reqTo = new Date(req.query.toDate);
     console.log('###ReqFrom:' + reqFrom);
@@ -216,7 +249,11 @@ module.exports = function (app, config) {
             result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate);
           }
         }
-        return data;
+        if (callback) {
+          callback(null, result);
+        } else {
+          return result;
+        }
       }
     });
   }
