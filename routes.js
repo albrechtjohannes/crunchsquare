@@ -21,7 +21,7 @@ module.exports = function (app, config) {
 
   app.get('/', function (req, res) {
     if (req.session.access_token) {
-      res.render('index2');
+      res.render('crunch');
     } else {
       res.redirect("/login");
     }
@@ -117,7 +117,7 @@ module.exports = function (app, config) {
     }
   };
 
-  app.get('/recent', function (req, res) {
+  app.get('/current', function (req, res) {
     var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
     request(venueUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {

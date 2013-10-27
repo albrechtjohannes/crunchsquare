@@ -177,10 +177,15 @@
         });
     };
 
-    var update = function(map, location, dom) {
+    var update = function(map, location, dom, clb) {
         if(!location) {
             return;
         }
+
+        var latlng = {
+            lng: location.mb,
+            lat: location.lb
+        };
 
         $.ajax("/venue", {
             data: {
@@ -204,11 +209,15 @@
                         }
                     });
                 });
+
+                if(clb) {
+                    clb(latlng);
+                }
             }
         });
     };
 
-    var registerUpdater = function(selector, target) {
+    var registerUpdater = function(selector, target, clb) {
         var input = getAutocompleter(selector);
         var dom = $(selector);
 
@@ -225,13 +234,13 @@
 
             clearMap(target);
 
-            update(target, location, dom);
+            update(target, location, dom, clb);
         });
 
         return input;
     };
 
-    var createControls = function(kind) {
+    var createControls = function(kind, clb) {
         var options = {
             zoom: 12,
             disableDefaultUI: true,
@@ -245,7 +254,7 @@
         map.setCenter(berlin);
 
         var dom = $("header ." + kind + " .search");
-        var search = registerUpdater(dom, map);
+        var search = registerUpdater(dom, map, clb);
 
         $("form ." + kind + " .date").each(function() {
             var input = $(this);
@@ -271,9 +280,8 @@
         });
     };
 
-    var toggleSlider = function(content) {
-        $(".slider").html(content);
-        $(".slider").toggle("slide", {direction: "right"});
+    var toggleSlider = function(selector) {
+        $(selector).toggle("slide", {direction: "right"});
     };
 
     $(document).ready(function() {
@@ -283,18 +291,43 @@
         $(".slider").height(contentHeight);
 
         createControls("origin");
-        createControls("destination");
+        createControls("destination", function(location) {
+            $.ajax("/current", {
+                data: location,
+                success: function(friends) {
+                    var slider = $(".slider.friends");
+
+                    $.each(friends, function() {
+                        var entry = $(
+                            "<span class='friend bck light'>" +
+                                this.toString() +
+                            "</span>"
+                        );
+
+                        entry.mouseover(function() {
+                            $(this).removeClass("light").addClass("theme");
+                        });
+
+                        entry.mouseout(function() {
+                            $(this).removeClass("theme").addClass("light");
+                        });
+
+                        slider.append(entry);
+                    });
+                }
+            });
+        });
 
         $("form").submit(function() {
             return false;
         });
 
         $(".divider .group").on("click", function() {
-            toggleSlider();
+            toggleSlider(".friends");
         });
 
         $(".divider .inbox").on("click", function() {
-            toggleSlider();
+            toggleSlider(".news");
         });
     });
 
