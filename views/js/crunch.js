@@ -1,6 +1,8 @@
 (function() {
 
     var markers = [];
+    var friendMarkers = [];
+    var currentMarker;
 
     var getAutocompleter = function(selector) {
         return new google.maps.places.Autocomplete($(selector).get(0), {
@@ -46,7 +48,8 @@
             for(i = 0; i < 24; i = i + 1) {
                 for(j = 0; j < 60; j = j + 15) {
                     var value = (i < 9 ? "0" + i : i) + ":" + (j < 9 ? "0" + j : j);
-                    var option = $("<option value='" + value + "'>" + value + "</option>");
+                    var text = (i < 9 ? "0" + i : i) + ":" + (j < 9 ? "0" + j : j);
+                    var option = $("<option value='" + value + "'>" + text + "</option>");
 
                     $(this).append(option);
                 }
@@ -54,14 +57,14 @@
         });
     };
 
-    var currentInfo;
+    var currentInfoWindow;
 
     var addMarker = function(map, position, info) {
-        var info = createInfo(info);
+        var infoWindow = createInfo(info);
 
-        google.maps.event.addListener(info, "domready", function() {
+        google.maps.event.addListener(infoWindow, "domready", function() {
             var dialog = $(
-                "<div id='checkin-dialog' class='column_6' data-tuktuk='modal'>" +
+                "<div id='checkin-dialog' class='column_8' data-tuktuk='modal'>" +
                     "<header>" +
                         "Check-In" +
                     "</header>" +
@@ -76,11 +79,11 @@
                                     "<input type='hidden' class='date from' data-trigger='#checkin-dialog .button.from' />" +
                                     "<a href='#' class='button from'>" +
                                         "<span class='icon calendar'></span> " +
-                                        "From" +
+                                        "<span class='content'>From</span>" +
                                     "</a>" +
                                 "</label>" +
                                 "<span class='select'>" +
-                                    "<select></select>" +
+                                    "<select class='fromSelect'></select>" +
                                 "</span>" +
                             "</fieldset>" +
                             "<fieldset class='time'>" +
@@ -88,11 +91,11 @@
                                     "<input type='hidden' class='date till' data-trigger='#checkin-dialog .button.till' />" +
                                     "<a href='#' class='button till'>" +
                                         "<span class='icon calendar'></span> " +
-                                        "Till" +
+                                        "<span class='content'>Till</span>" +
                                     "</a>" +
                                 "</label>" +
                                 "<span class='select'>" +
-                                    "<select></select>" +
+                                    "<select class='tillSelect'></select>" +
                                 "</span>" +
                             "</fieldset>" +
                         "</form>" +
@@ -117,7 +120,11 @@
             dialog.find("form .date").each(function() {
                 var input = $(this);
 
-                input.datepicker();
+                input.datepicker({
+                    onSelect: function(date) {
+                        trigger.children(".content").html(date);
+                    }
+                });
 
                 var trigger = $(input.data("trigger"));
                 trigger.click(function() {
@@ -142,6 +149,26 @@
             TukTuk.dom("[data-tuktuk=modal] [data-modal=close]").on("click", function() {
                 return TukTuk.Modal.hide();
             });
+
+            dialog.find(".checkin").on("click", function() {
+                $.ajax("/new", {
+                    data: {
+                        venueId: info.id,
+                        fromDate: new Date(dialog.find(".from").val() + "/" + dialog.find(".fromSelect").val()).toString(),
+                        toDate: new Date(dialog.find(".till").val() + "/" + dialog.find(".tillSelect").val()).toString()
+                    },
+                    type: "POST",
+                    success: function() {
+                        var index = markers.indexOf(currentMarker);
+                        if (index > -1) {
+                            markers.splice(index, 1);
+                        }
+                        currentMarker.setIcon("/images/marker_busy.png");
+
+                        dialog.close();
+                    }
+                });
+            });
         });
 
         var marker = new google.maps.Marker({
@@ -151,19 +178,20 @@
         });
 
         google.maps.event.addListener(map, "click", function() {
-            if(currentInfo) {
-                currentInfo.close();
+            if(currentInfoWindow) {
+                currentInfoWindow.close();
             }
         });
 
         google.maps.event.addListener(marker, "click", function() {
-            if(currentInfo) {
-                currentInfo.close();
+            if(currentInfoWindow) {
+                currentInfoWindow.close();
             }
 
-            currentInfo = info;
+            currentInfoWindow = infoWindow;
+            currentMarker = marker;
 
-            info.open(map, marker);
+            infoWindow.open(map, marker);
         });
 
         markers.push(marker);
@@ -200,6 +228,7 @@
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
 
                     addMarker(map, location, {
+                        id: venue.id,
                         name: venue.name,
                         phone: venue.contact.formattedPhone,
                         web: venue.url,
