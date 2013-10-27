@@ -107,7 +107,7 @@
                         "</button>" +
                         "<button class='checkin'>" +
                             "<i class='fa fa-foursquare'></i> " +
-                            "Check-In" +
+                            "preCheck-In" +
                         "</button>" +
                     "</footer>" +
                 "</div>"
@@ -165,7 +165,7 @@
                         }
                         currentMarker.setIcon("/images/marker_busy.png");
 
-                        dialog.close();
+                        TukTuk.Modal.hide();
                     }
                 });
             });
