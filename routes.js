@@ -34,7 +34,7 @@ module.exports = function (app, config) {
       "redirect_uri": config.redirectUrl
     };
     var authenticateUrl = createUrl("https://foursquare.com/oauth2/authenticate", params);
-    res.writeHead(303, {'location': authenticateUrl });
+    res.writeHead(303, { 'location': authenticateUrl });
     res.send();
   });
 
@@ -58,6 +58,7 @@ module.exports = function (app, config) {
   });
 
   app.get('/friends', function (req, res) {
+    console.log(req.session);
     var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
     request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -79,6 +80,7 @@ module.exports = function (app, config) {
   });
 
   app.get('/venue', function (req, res) {
+    getUserData(req);
     var params = {
       "ll": req.query.lat + "," + req.query.lng,
       "categoryId": "4eb1bc533b7b2c5b1d4306cb",
@@ -107,27 +109,23 @@ module.exports = function (app, config) {
     return R * c;
   }
 
-  Array.prototype.in_array = function (value) {
-    return (this.indexOf(value) !== -1);
-  };
-
-  Array.prototype.push_unique = function (value) {
-    if (!this.in_array(value)) {
-      this.push(value);
-    }
-  };
-
   app.get('/current', function (req, res) {
     var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
     request(venueUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var data = JSON.parse(body).response.recent;
-        var result = [];
+        var result = {};
         for (var i = 0; i < data.length; i++) {
           var location = data[i].venue.location;
           var distance = getDistance(location.lat, location.lng, req.query.lat, req.query.lng);
           if (distance <= 25) {
-            result.push_unique(data[i].user.firstName + " " + data[i].user.lastName);
+            var name = data[i].user.firstName + " " + data[i].user.lastName;
+            if (!(name in result)) {
+              result[name] = {
+                lat: data[i].venue.location.lat,
+                lng: data[i].venue.location.lng
+              };
+            }
           }
         }
         res.send(result);
@@ -135,17 +133,16 @@ module.exports = function (app, config) {
     });
   });
 
-  app.get('/friendsInCity', function (req, res) {
-    var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
-    request(venueUrl, function (error, response, body) {
+  function getUserData(req) {
+    var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
+    request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        var result = JSON.parse(body);
-        // var result = body.response.venues;
-        // console.log(result);
-        res.send(result);
+        var user = JSON.parse(body).response.user;
+        req.session.userId = user.id;
+        req.session.userName = user.firstName + " " + user.lastName;
       }
     });
-  });
+  }
 
   var models= require('./models.js');
   app.post('/saveCheckIn', function(req, res) {
