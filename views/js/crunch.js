@@ -224,8 +224,8 @@
                 fromDate: (new Date($(dom.data("from")).val())).toString(),
                 toDate: (new Date($(dom.data("till")).val())).toString()
             },
-            success: function(data) {
-                $.each(data.response.venues, function() {
+            success: function(venues) {
+                $.each(venues, function() {
                     var venue = this;
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
 
@@ -358,6 +358,7 @@
                 data: location,
                 success: function(friends) {
                     var slider = $(".slider.friends .recent");
+                    slider.find(".friend").remove();
 
                     $.each(friends, function(key, value) {
                         var entry = $(
