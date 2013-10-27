@@ -174,7 +174,7 @@
         var marker = new google.maps.Marker({
             position: position,
             map: map,
-            icon: "/images/marker.png"
+            icon: info.checkins && info.checkins.length > 0 ? "/images/marker_busy.png" : "/images/marker.png"
         });
 
         google.maps.event.addListener(map, "click", function() {
@@ -234,6 +234,7 @@
                         name: venue.name,
                         phone: venue.contact.formattedPhone,
                         web: venue.url,
+                        checkins: venue.checkins,
                         address: {
                             street: venue.location.address,
                             city: venue.location.city
@@ -350,7 +351,7 @@
         var contentHeight = $("body").height() - $("header").height() - (2 * parseInt($("header").css("padding")));
 
         $(".map").height(contentHeight);
-        $(".slider").height(contentHeight);
+        $(".slider").height(contentHeight - 40);
 
         createControls("origin");
         createControls("destination", function(map, location) {
