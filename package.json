@@ -6,7 +6,8 @@
     "mongoose": ">= 3.6.13",
     "request": ">= 1.2.32",
     "node-foursquare": ">= 0.2.0",
-    "ejs": ">= 0.8.4"
+    "ejs": ">= 0.8.4",
+    "async": ">= 0.2.9"
   },
   "engines": {
     "node": "0.10.x",

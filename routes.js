@@ -1,4 +1,5 @@
-var request = require('request');
+var request = require('request'),
+  async = require('async');
 
 module.exports = function (app, config) {
 
@@ -58,7 +59,6 @@ module.exports = function (app, config) {
   });
 
   app.get('/friends', function (req, res) {
-    console.log(req.session);
     var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
     request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -80,21 +80,43 @@ module.exports = function (app, config) {
   });
 
   app.get('/venue', function (req, res) {
-    getUserData(req);
-    var params = {
-      "ll": req.query.lat + "," + req.query.lng,
-      "categoryId": "4eb1bc533b7b2c5b1d4306cb",
-      "query": "Lufthansa"
-      // "intent": "browse"
-    };
-    var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
-    request(venueUrl, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        var result = JSON.parse(body);
-        // var result = body.response.venues;
-        // console.log(result);
-        res.send(result);
-      }
+    if (!req.session.userId) { getUserData(req); }
+
+    console.log(req.query);
+
+    async.parallel([
+      function(callback) {
+        if (!(req.query.fromDate !== "Invalid Date" || req.query.toDate !== "Invalid Date")) {
+          var params = {
+            "ll": req.query.lat + "," + req.query.lng,
+            "categoryId": "4eb1bc533b7b2c5b1d4306cb",
+            "query": "Lufthansa"
+            // "intent": "browse"
+          };
+          var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
+          request(venueUrl, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+              var result = JSON.parse(body);
+              callback(null, result.response.venues);
+            }
+          });
+        } else {
+          callback(null, []);
+        }
+      },
+      function(callback) {
+        if (req.query.fromDate !== "Invalid Date" && req.query.toDate !== "Invalid Date") {
+          callback(null, inTimeFrame(req));
+        } else {
+          callback(null, "");
+        }
+      }], function(err, results) {
+        console.log(results);
+        if (results[1] === "") {
+          res.send(results[0]);
+        } else {
+
+        }
     });
   });
 
@@ -141,7 +163,6 @@ module.exports = function (app, config) {
         var user = JSON.parse(body).response.user;
         req.session.userId = user.id;
         req.session.userName = user.firstName + " " + user.lastName;
-        console.log(req.session);
       }
     });
   }
@@ -171,8 +192,12 @@ module.exports = function (app, config) {
   });
 
   app.get('/inTimeframe', function(req, res) {
-    var reqFrom = new Date(req.body.fromDate);
-    var reqTo = new Date(req.body.toDate);
+    res.send(inTimeFrame(req, res));
+  });
+
+  function inTimeFrame(req) {
+    var reqFrom = new Date(req.query.fromDate);
+    var reqTo = new Date(req.query.toDate);
     console.log('###ReqFrom:' + reqFrom);
     console.log('###ReqTo:' + reqTo);
     models.PreCheckIn.find()
@@ -191,8 +216,8 @@ module.exports = function (app, config) {
             result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate);
           }
         }
-        res.send(data);
+        return data;
       }
     });
-  });
+  }
 };

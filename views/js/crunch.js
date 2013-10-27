@@ -225,6 +225,7 @@
                 toDate: (new Date($(dom.data("till")).val())).toString()
             },
             success: function(data) {
+                console.log(data);
                 $.each(data.response.venues, function() {
                     var venue = this;
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
