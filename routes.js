@@ -122,6 +122,7 @@ module.exports = function (app, config) {
             var name = data[i].user.firstName + " " + data[i].user.lastName;
             if (!(name in result)) {
               result[name] = {
+                venueName: data[i].venue.name,
                 lat: data[i].venue.location.lat,
                 lng: data[i].venue.location.lng
               };
@@ -140,51 +141,43 @@ module.exports = function (app, config) {
         var user = JSON.parse(body).response.user;
         req.session.userId = user.id;
         req.session.userName = user.firstName + " " + user.lastName;
+        console.log(req.session);
       }
     });
   }
 
   var models= require('./models.js');
-  app.post('/new', function(req, res) {
-    var toDate = null
-    if (req.param('toDate')) {toDate = new Date(req.body.toDate)}
-    var newCheckIn = new models.PreCheckIn({
-        _userId: req.body.userId,
-        _venueId: req.body.venueId,
-        _fromDate: new Date(req.body.fromDate),
-        _toDate: toDate
+  app.post('/saveCheckIn', function(req, res) {
+    var from = req.body.fromDate.split('/');
+    var newCheckIn;
+    if (req.param('toDate')) {
+      var to = req.body.toDate.split('/');
+      newCheckIn = new models.PreCheckIn({
+        userId: req.body.userId,
+        venueId: req.body.venueId,
+        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
+        toDate: new Date(to[0],to[1], to[2], to[3], to[4], '00'),
       });
-    newCheckIn.save(function(err, data) {
+    } else {
+      newCheckIn = new models.PreCheckIn({
+        userId: req.body.userId,
+        venueId: req.body.venueId,
+        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
+      });
+    }
+    newCheckIn.save(function(err) {
       if (err) {
-        res.json(error);
+        return console.log(err);
       } else {
-        console.log("Added new CheckIn");
-        res.statusCode = 201;
-        res.send();
+        return console.log("created");
       }
     });
+    res.send(newCheckIn);
   });
 
-  app.get('/inTimeframe', function(req, res) {
-    var reqFrom = new Date(req.body.fromDate);
-    var reqTo = new Date(req.body.toDate);
-    console.log('###ReqFrom:' + reqFrom);
-    console.log('###ReqTo:' + reqTo);
-    models.PreCheckIn.find()
-    .where('_fromDate').lte(reqTo)
-    .exec(function(err, data){
-      if (err) {console.log(err);}
-      else if (data.length == 0) { console.log('No entries found.')}
-      else {
-        var result = [];
-        for (var i=0; i<data.length; i += 1) {
-          if (!("_toDate" in data[i]))
-            {result.push(data[i]); console.log('Added: ' + data[i]._fromDate + ' and no end.');}
-          else if (data[i]._toDate >= reqFrom)
-            {result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate)}
-        }
-        res.send(data);
-      }
+  app.get('/findOne', function(req, res) {
+    models.PreCheckIn.find({ venueId: 456 }).exec(function(err, checkin) {
+        res.send(checkin);
+      });
     });
-  });
 };
