@@ -34,7 +34,7 @@ module.exports = function (app, config) {
       "redirect_uri": config.redirectUrl
     };
     var authenticateUrl = createUrl("https://foursquare.com/oauth2/authenticate", params);
-    res.writeHead(303, {'location': authenticateUrl });
+    res.writeHead(303, { 'location': authenticateUrl });
     res.send();
   });
 
@@ -58,6 +58,7 @@ module.exports = function (app, config) {
   });
 
   app.get('/friends', function (req, res) {
+    console.log(req.session);
     var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
     request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -79,6 +80,7 @@ module.exports = function (app, config) {
   });
 
   app.get('/venue', function (req, res) {
+    getUserData(req);
     var params = {
       "ll": req.query.lat + "," + req.query.lng,
       "categoryId": "4eb1bc533b7b2c5b1d4306cb",
@@ -107,27 +109,23 @@ module.exports = function (app, config) {
     return R * c;
   }
 
-  Array.prototype.in_array = function (value) {
-    return (this.indexOf(value) !== -1);
-  };
-
-  Array.prototype.push_unique = function (value) {
-    if (!this.in_array(value)) {
-      this.push(value);
-    }
-  };
-
   app.get('/current', function (req, res) {
     var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
     request(venueUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var data = JSON.parse(body).response.recent;
-        var result = [];
+        var result = {};
         for (var i = 0; i < data.length; i++) {
           var location = data[i].venue.location;
           var distance = getDistance(location.lat, location.lng, req.query.lat, req.query.lng);
           if (distance <= 25) {
-            result.push_unique(data[i].user.firstName + " " + data[i].user.lastName);
+            var name = data[i].user.firstName + " " + data[i].user.lastName;
+            if (!(name in result)) {
+              result[name] = {
+                lat: data[i].venue.location.lat,
+                lng: data[i].venue.location.lng
+              };
+            }
           }
         }
         res.send(result);
@@ -135,50 +133,58 @@ module.exports = function (app, config) {
     });
   });
 
-  app.get('/friendsInCity', function (req, res) {
-    var venueUrl = createUrl("https://api.foursquare.com/v2/checkins/recent");
-    request(venueUrl, function (error, response, body) {
+  function getUserData(req) {
+    var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
+    request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        var result = JSON.parse(body);
-        // var result = body.response.venues;
-        // console.log(result);
-        res.send(result);
+        var user = JSON.parse(body).response.user;
+        req.session.userId = user.id;
+        req.session.userName = user.firstName + " " + user.lastName;
       }
     });
-  });
+  }
 
   var models= require('./models.js');
-  app.post('/saveCheckIn', function(req, res) {
-    var from = req.body.fromDate.split('/');
-    var newCheckIn;
-    if (req.param('toDate')) {
-      var to = req.body.toDate.split('/');
-      newCheckIn = new models.PreCheckIn({
-        userId: req.body.userId,
-        venueId: req.body.venueId,
-        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
-        toDate: new Date(to[0],to[1], to[2], to[3], to[4], '00'),
+  app.post('/new', function(req, res) {
+    var toDate = null
+    if (req.param('toDate')) {toDate = new Date(req.body.toDate)}
+    var newCheckIn = new models.PreCheckIn({
+        _userId: req.body.userId,
+        _venueId: req.body.venueId,
+        _fromDate: new Date(req.body.fromDate),
+        _toDate: toDate
       });
-    } else {
-      newCheckIn = new models.PreCheckIn({
-        userId: req.body.userId,
-        venueId: req.body.venueId,
-        fromDate: new Date(from[0], from[1], from[2], from[3], from[4], '00'),
-      });
-    }
-    newCheckIn.save(function(err) {
+    newCheckIn.save(function(err, data) {
       if (err) {
-        return console.log(err);
+        res.json(error);
       } else {
-        return console.log("created");
+        console.log("Added new CheckIn");
+        res.statusCode = 201;
+        res.send();
       }
     });
-    res.send(newCheckIn);
   });
 
-  app.get('/findOne', function(req, res) {
-    models.PreCheckIn.find({ venueId: 456 }).exec(function(err, checkin) {
-        res.send(checkin);
-      });
+  app.get('/inTimeframe', function(req, res) {
+    var reqFrom = new Date(req.body.fromDate);
+    var reqTo = new Date(req.body.toDate);
+    console.log('###ReqFrom:' + reqFrom);
+    console.log('###ReqTo:' + reqTo);
+    models.PreCheckIn.find()
+    .where('_fromDate').lte(reqTo)
+    .exec(function(err, data){
+      if (err) {console.log(err);}
+      else if (data.length == 0) { console.log('No entries found.')}
+      else {
+        var result = [];
+        for (var i=0; i<data.length; i += 1) {
+          if (!("_toDate" in data[i]))
+            {result.push(data[i]); console.log('Added: ' + data[i]._fromDate + ' and no end.');}
+          else if (data[i]._toDate >= reqFrom)
+            {result.push(data[i]); console.log('Added: ' + data[i]._fromDate); console.log(data[i]._toDate)}
+        }
+        res.send(data);
+      }
     });
+  });
 };

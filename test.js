@@ -2,10 +2,10 @@ var request = require('request');
 
 request({
       method: 'POST',
-        uri: 'http://localhost:5000/saveCheckIn',
+        uri: 'http://localhost:5000/new',
           body: {'userId': 'XYZ123', 
-                'fromDate': '13/01/15/14/30',
-                'toDate': '13/01/22/14/30',
+                'fromDate': "2013-12-15T14:30:00Z",
+                'toDate':  "2013-12-21T14:30:00Z",
                 'venueId': '123'
                 },
             json: true
@@ -16,9 +16,9 @@ request({
 
 request({
       method: 'POST',
-        uri: 'http://localhost:5000/saveCheckIn',
+        uri: 'http://localhost:5000/new',
           body: {'userId': 'XYZ123', 
-                'fromDate': '13/01/15/14/30',
+                'fromDate': "2013-12-15T14:30:00Z",
                 'venueId': '456'
                 },
             json: true
@@ -27,7 +27,7 @@ request({
         console.log(body);
 });
 
-request({
+/*request({
       method: 'GET',
         uri: 'http://localhost:5000/findOne',
           body: {
@@ -37,4 +37,4 @@ request({
 }, function (error, response, body) {
       console.log('code: '+ response.statusCode);
         console.log(body);
-});
+});*/
