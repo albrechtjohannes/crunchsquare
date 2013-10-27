@@ -27,7 +27,8 @@
                     "</div>" +
                     "<div class='content'>" +
                         "<div class='phone'>Phone: " + (info.phone || "N/A") + "</div>" +
-                        "Web: <a href='" + info.web + "' class='theme web'>" + (info.web || "N/A") + "</a>" +
+                        "Web: <a href='" + info.web + "' class='theme web'>" + (info.web || "N/A") + "</a><br />" +
+                        "preCheck-Ins: " + ((info.checkins || []).join(", ") || "N/A") + "<br />" +
                         "<a class='button tiny checkin' data-tuktuk-modal='checkin-dialog' href='#'>" +
                             "<i class='fa fa-foursquare'></i> " +
                             "Pre-Check-In with foursquare</a>" +
@@ -225,21 +226,42 @@
                 toDate: (new Date($(dom.data("till")).val())).toString()
             },
             success: function(venues) {
+                var checkins = [];
+
                 $.each(venues, function() {
                     var venue = this;
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
+
+                    $.each(venue.preChecked || [], function() {
+                        if(checkins.indexOf(this.toString()) === -1) {
+                            checkins.push(this.toString());
+                        }
+                    });
 
                     addMarker(map, location, {
                         id: venue.id,
                         name: venue.name,
                         phone: venue.contact.formattedPhone,
                         web: venue.url,
-                        checkins: venue.checkins,
+                        checkins: venue.preChecked,
                         address: {
                             street: venue.location.address,
                             city: venue.location.city
                         }
                     });
+                });
+
+                var slider = $(".slider.friends .future");
+                slider.find(".friend").remove();
+
+                $.each(checkins, function() {
+                    var entry = $(
+                        "<span class='friend button tiny secondary'>" +
+                            this.toString() +
+                        "</span>"
+                    );
+
+                    slider.append(entry);
                 });
 
                 if(clb) {
@@ -368,21 +390,13 @@
                             "</span>"
                         );
 
-                        entry.mouseover(function() {
-                            $(this).removeClass("light").addClass("theme");
-                        });
-
-                        entry.mouseout(function() {
-                            $(this).removeClass("theme").addClass("light");
-                        });
+                        slider.append(entry);
 
                         var position = new google.maps.LatLng(value.lat, value.lng);
                         var marker = addMarker(map, position, {
                             name: key,
                             address: {}
                         });
-
-                        slider.append(entry);
                     });
                 }
             });
