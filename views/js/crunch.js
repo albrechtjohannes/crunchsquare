@@ -211,7 +211,7 @@
                 });
 
                 if(clb) {
-                    clb(latlng);
+                    clb(map, latlng);
                 }
             }
         });
@@ -291,16 +291,16 @@
         $(".slider").height(contentHeight);
 
         createControls("origin");
-        createControls("destination", function(location) {
+        createControls("destination", function(map, location) {
             $.ajax("/current", {
                 data: location,
                 success: function(friends) {
-                    var slider = $(".slider.friends");
+                    var slider = $(".slider.friends .recent");
 
-                    $.each(friends, function() {
+                    $.each(friends, function(key, value) {
                         var entry = $(
-                            "<span class='friend bck light'>" +
-                                this.toString() +
+                            "<span class='friend button tiny secondary'>" +
+                                key +
                             "</span>"
                         );
 
@@ -310,6 +310,12 @@
 
                         entry.mouseout(function() {
                             $(this).removeClass("theme").addClass("light");
+                        });
+
+                        var position = new google.maps.LatLng(value.lat, value.lng);
+                        addMarker(map, position, {
+                            name: key,
+                            address: {}
                         });
 
                         slider.append(entry);
