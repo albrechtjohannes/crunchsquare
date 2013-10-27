@@ -195,6 +195,8 @@
         });
 
         markers.push(marker);
+
+        return marker;
     };
 
     var clearMap = function(map) {
@@ -219,8 +221,8 @@
             data: {
                 lng: location.mb,
                 lat: location.lb,
-                from: (new Date($(dom.data("from")).val())).toString(),
-                till: (new Date($(dom.data("till")).val())).toString()
+                fromDate: (new Date($(dom.data("from")).val())).toString(),
+                toDate: (new Date($(dom.data("till")).val())).toString()
             },
             success: function(data) {
                 $.each(data.response.venues, function() {
@@ -310,7 +312,38 @@
     };
 
     var toggleSlider = function(selector) {
-        $(selector).toggle("slide", {direction: "right"});
+        var hidden = true;
+
+        var slide = function() {
+            $(selector).toggle("slide", {
+                direction: "right",
+                complete: function() {
+                    if(hidden) {
+                        $(this).find("> div").fadeIn();
+                    }
+
+                    hidden = !hidden;
+                }
+            });
+        };
+
+        if(hidden) {
+            var elements = $(selector + "> div").length;
+
+            $(selector + "> div").fadeOut({
+                complete: function() {
+                    elements = elements - 1;
+
+                    if(elements === 0) {
+                        slide();
+                    }
+                }
+            });
+
+            return;
+        }
+
+        slide();
     };
 
     $(document).ready(function() {
@@ -342,7 +375,7 @@
                         });
 
                         var position = new google.maps.LatLng(value.lat, value.lng);
-                        addMarker(map, position, {
+                        var marker = addMarker(map, position, {
                             name: key,
                             address: {}
                         });
