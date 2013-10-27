@@ -274,7 +274,7 @@
 
     var createControls = function(kind, clb) {
         var options = {
-            zoom: 12,
+            zoom: 11,
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -398,6 +398,10 @@
 
         $(".divider .inbox").on("click", function() {
             toggleSlider(".news");
+        });
+
+        $(".divider .shopping-cart").on("click", function() {
+            toggleSlider(".offerings");
         });
     });
 
