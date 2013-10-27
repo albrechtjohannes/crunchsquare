@@ -149,14 +149,15 @@ module.exports = function (app, config) {
     var toDate = null
     if (req.param('toDate')) {toDate = new Date(req.body.toDate)}
     var newCheckIn = new models.PreCheckIn({
-        _userId: req.body.userId,
+        //_userId: req.body.userId,
+        _userId: req.session.userId,
         _venueId: req.body.venueId,
         _fromDate: new Date(req.body.fromDate),
         _toDate: toDate
       });
     newCheckIn.save(function(err, data) {
       if (err) {
-        res.json(error);
+        res.json(err);
       } else {
         console.log("Added new CheckIn");
         res.statusCode = 201;
