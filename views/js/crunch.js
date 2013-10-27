@@ -373,7 +373,7 @@
         var contentHeight = $("body").height() - $("header").height() - (2 * parseInt($("header").css("padding")));
 
         $(".map").height(contentHeight);
-        $(".slider").height(contentHeight - 40);
+        $(".slider").height(contentHeight);
 
         createControls("origin");
         createControls("destination", function(map, location) {
