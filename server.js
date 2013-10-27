@@ -25,7 +25,8 @@ app.configure(function() {
 });
 
 // MongoDB
-var mongoUri = process.env.MONGOLAB_URI || 'mongodb://localhost/crunchbase';
+//var mongoUri = process.env.MONGOLAB_URI || 'mongodb://mongodb://olli:bier@ds051658.mongolab.com:51658/crunchsquare';
+var mongoUri = process.env.MONGOLAB_URI || 'mongodb://localhost/crunchsquare';
 
 mongoose.connect(mongoUri, function (err, res) {
   if (err) {
