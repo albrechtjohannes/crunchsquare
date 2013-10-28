@@ -14,16 +14,23 @@
         return new google.maps.Map($(selector).get(0), options);
     };
 
-    var createInfo = function(info) {
-        photoHtml = '';
-        $.each((info.checkins || []), function() {
+    var getImagesForUserIds = function(userIds) {
+        result = {}
+        $.each((userIds || []), function() {
             $.ajax("/images/" + this, {
                 async: false,
                 success: function(urlstring) {
-                    photoHtml += "<img src='" + urlstring + "'>";
+                    result[this] = urlstring;
                 }
             });
         });
+        return result;
+    }
+
+    var createInfo = function(info) {
+        var photoHtml = '';
+        $.each((info.checkins || []), function() {photoHtml += "<img src='" + this + "'>";
+            });
         var content = $(
             "<div>" +
                 "<div class='info'>" +
@@ -267,6 +274,7 @@
                 $.each(checkins, function() {
                     var entry = $(
                         "<span class='friend button tiny secondary'>" +
+
                             this.toString() +
                         "</span>"
                     );
@@ -392,22 +400,21 @@
                 success: function(friends) {
                     var slider = $(".slider.friends .recent");
                     slider.find(".friend").remove();
-
-                    $.each(friends, function(key, value) {
+                    for (var userId in friends) {
+                        var value = friends[userId];
+                        console.log(userId);
                         var entry = $(
                             "<span class='friend button tiny secondary'>" +
-                                key +
-                            "</span>"
-                        );
-
+                                value.userName + " " + "<img src='" + value.userPhotoUrl + "'></span>"
+                            );
                         slider.append(entry);
 
                         var position = new google.maps.LatLng(value.lat, value.lng);
                         var marker = addMarker(map, position, {
-                            name: key,
+                            name: value.userName,
                             address: {}
                         });
-                    });
+                    }
                 }
             });
         });

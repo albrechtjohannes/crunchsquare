@@ -163,15 +163,15 @@ module.exports = function (app, config) {
             venues[i].preChecked = [];
             for (var j = 0; j < preCheckins.length; j++) {
               if (venues[i].id === preCheckins[j]._venueId) {
-                var userId = preCheckins[j]._userId;
+                var userId = preCheckins[j]._userPhotoUrl;
                 console.log(userId);
-                console.log(preCheckins[j]._userId);
-                console.log(venues[i].preChecked);
+                console.log(preCheckins[j]);
                 if (venues[i].preChecked.indexOf(userId) == -1)
                   {venues[i].preChecked.push(userId)};
               }
             }
           }
+          console.log(venues);
           res.send(venues);
           /*console.log(venues[i].preChecked);
           res.send(async.map(venues[i].preChecked, getPhotoUrl, function(err, results) {
@@ -208,10 +208,12 @@ module.exports = function (app, config) {
         for (var i = 0; i < data.length; i++) {
           var location = data[i].venue.location;
           var distance = getDistance(location.lat, location.lng, req.query.lat, req.query.lng);
+          var user = data[i].user;
           if (distance <= 25) {
-            var name = data[i].user.firstName + " " + data[i].user.lastName;
-            if (!(name in result)) {
-              result[name] = {
+            if (!(user.id in result))   {
+              result[user.id] = {
+                userName: user.firstName + " " + user.lastName,
+                userPhotoUrl: user.photo.prefix + "36x36" + user.photo.suffix,
                 venueName: data[i].venue.name,
                 lat: data[i].venue.location.lat,
                 lng: data[i].venue.location.lng
@@ -219,6 +221,7 @@ module.exports = function (app, config) {
             }
           }
         }
+        console.log(result);
         res.send(result);
       }
     });
@@ -231,6 +234,7 @@ module.exports = function (app, config) {
         var user = JSON.parse(body).response.user;
         req.session.userId = user.id;
         req.session.userName = user.firstName + " " + user.lastName;
+        req.session.userPhotoUrl  = user.photo.prefix + "36x36" + user.photo.suffix;
       }
     });
   }
@@ -244,6 +248,7 @@ module.exports = function (app, config) {
     var newCheckIn = new models.PreCheckIn({
       //_userId: req.body.userId,
       _userId: req.session.userId,
+      _userPhotoUrl: req.session.userPhotoUrl,
       _userName: req.session.userName,
       _venueId: req.body.venueId,
       _fromDate: new Date(req.body.fromDate),
