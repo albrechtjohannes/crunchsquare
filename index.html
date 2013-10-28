@@ -10,9 +10,16 @@
 </head>
 <body class='text thin'>
     <header>
-        <div class='row'>
-            <div class='column_6'>
+        <div class='row padding-top padding-bottom'>
+            <div class='column_5 offset_1'>
                 <img src='images/logo.png' />
+            </div>
+            <div class='column_6'>
+                <nav data-tuktuk="menu">
+                    <a href='#what'>What is it?</a>
+                    <a href='#see'>See it live</a>
+                    <a href='#who'>Who created it?</a>
+                </nav>
             </div>
         </div>
     </header>
@@ -40,17 +47,20 @@
         </div>
     </section>
 
+    <a id='what'></a>
     <section class='bck theme padding text center'>
         <div class='row'>
             <div class='column_10 offset_1'>
-                <h1 class='text book color default'>What is it?</h1>
+                <h1 class='text book'>What is it?</h1>
                 <h4>
-                    Foursquare PreCheck-In allows people to express their intent to visit places before they even go. That can make it easier to plan trips with friends, and it can allow businesses to offer up services and products to potential customers in advance to help encourage them to actually go through with their visit and deliver better customer service.
+                    "Foursquare PreCheck-In allows people to express their intent to visit places before they even go. That can make it easier to plan trips with friends, and it can allow businesses to offer up services and products to potential customers in advance to help encourage them to actually go through with their visit and deliver better customer service."
+                    <small>TechCrunch</small>
                 </h4>
             </div>
         </div>
     </section>
 
+    <a id='see'></a>
     <section class='bck light text padding center video'>
         <div class='row'>
             <div class='column_10 offset_1'>
@@ -64,6 +74,7 @@
         </div>
     </section>
 
+    <a id='who'></a>
     <section class='bck lightest padding text center authors'>
         <div class='row padding-bottom'>
             <div class='column_12'>
@@ -148,6 +159,8 @@
     </section>
 
     <script type="text/javascript" src='js/lib/jquery-2.0.3.min.js'></script>
+    <script type="text/javascript" src='js/lib/jquery.smooth-scroll.min.js'></script>
     <script type="text/javascript" src="js/lib/tuktuk.js"></script>
+    <script type="text/javascript" src="js/crunch.js"></script>
 </body>
 </html>

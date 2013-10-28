@@ -22,3 +22,29 @@ section.landing input[type=email] {
 .contact {
   margin-top: 30px;
 }
+nav {
+  text-align: right;
+}
+h1 {
+  margin-bottom: 20px;
+}
+h4 small {
+  display: block;
+  text-align: right;
+  font-size: 14px;
+}
+h4 small:before {
+  content: "\2012";
+}
+body .bck.theme {
+  background-color: #5797d1;
+}
+body .form .button {
+  background-color: #5797d1 !important;
+}
+body .color.theme {
+  color: #5797d1 !important;
+}
+body a:not(.button):hover {
+  color: #5797d1 !important;
+}

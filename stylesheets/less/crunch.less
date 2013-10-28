@@ -38,3 +38,53 @@ section {
 .contact {
     margin-top: 30px;
 }
+
+nav {
+    text-align: right;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+h4 {
+    small {
+        display: block;
+
+        text-align: right;
+
+        font-size: 14px;
+
+        &:before {
+            content: "\2012";
+        }
+    }
+}
+
+body {
+    @color: #5797d1;
+
+    .bck {
+        &.theme {
+            background-color: @color;
+        }
+    }
+
+    .form {
+        .button {
+            background-color: @color !important;
+        }
+    }
+
+    .color {
+        &.theme {
+            color: @color !important;
+        }
+    }
+
+    a:not(.button) {
+        &:hover {
+            color: @color !important;
+        }
+    }
+}
