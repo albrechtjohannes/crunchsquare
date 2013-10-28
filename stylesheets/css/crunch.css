@@ -48,3 +48,6 @@ body .color.theme {
 body a:not(.button):hover {
   color: #5797d1 !important;
 }
+body .landing .color.theme {
+  color: #fff !important;
+}
