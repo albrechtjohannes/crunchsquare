@@ -15,6 +15,15 @@
     };
 
     var createInfo = function(info) {
+        photoHtml = '';
+        $.each((info.checkins || []), function() {
+            $.ajax("/images/" + this, {
+                async: false,
+                success: function(urlstring) {
+                    photoHtml += "<img src='" + urlstring + "'>";
+                }
+            });
+        });
         var content = $(
             "<div>" +
                 "<div class='info'>" +
@@ -28,7 +37,7 @@
                     "<div class='content'>" +
                         "<div class='phone'>Phone: " + (info.phone || "N/A") + "</div>" +
                         "Web: <a href='" + info.web + "' class='theme web'>" + (info.web || "N/A") + "</a><br />" +
-                        "preCheck-Ins: " + ((info.checkins || []).join(", ") || "N/A") + "<br />" +
+                        "preCheck-Ins: " + photoHtml + " <br />" +
                         "<a class='button tiny checkin' data-tuktuk-modal='checkin-dialog' href='#'>" +
                             "<i class='fa fa-foursquare'></i> " +
                             "Pre-Check-In with foursquare</a>" +
@@ -243,6 +252,7 @@
                         name: venue.name,
                         phone: venue.contact.formattedPhone,
                         web: venue.url,
+                        users: venue.hereNow,
                         checkins: venue.preChecked,
                         address: {
                             street: venue.location.address,

@@ -5,6 +5,30 @@ module.exports = function (app, config) {
 
   var token = "";
 
+  app.get('/images/:userid', function(req,res) {
+    url = createUrl("https://api.foursquare.com/v2/users/" + req.params.userid);
+    request(url, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        var photoUrl = result.response.user.photo.prefix + '36x36' + result.response.user.photo.suffix;
+        console.log(photoUrl);
+        res.send(photoUrl);
+        }
+      }
+    );
+  });
+
+  function getPhotoUrl(userid) {
+    url = createUrl("https://api.foursquare.com/v2/users/" + userid);
+    request(url, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var result = JSON.parse(body);
+        var photoUrl = result.response.user.photo.prefix + '36x36' + result.response.user.photo.suffix;
+        return photoUrl;
+        }
+      });
+  };
+
   function createUrl(baseUrl, params) {
     params = params || {};
     var url = baseUrl + "?";
@@ -82,8 +106,6 @@ module.exports = function (app, config) {
   app.get('/venue', function (req, res) {
     if (!req.session.userId) { getUserData(req); }
 
-    console.log(req.query);
-
     async.parallel([
       function(callback) {
         if (req.query.fromDate === "Invalid Date") {
@@ -131,21 +153,37 @@ module.exports = function (app, config) {
           callback(null, "");
         }
       }], function(err, results) {
-          console.log(results);
+          //console.log(results);
         if (results[1] === "") {
           res.send(results[0]);
         } else {
           var venues = results[0];
-          var people = results[1];
+          var preCheckins = results[1];
           for (var i = 0; i < venues.length; i++) {
             venues[i].preChecked = [];
-            for (var j = 0; j < people.length; j++) {
-              if (venues[i].id === people[j]._venueId) {
-                venues[i].preChecked.push(people[j]._userName);
+            for (var j = 0; j < preCheckins.length; j++) {
+              if (venues[i].id === preCheckins[j]._venueId) {
+                var userId = preCheckins[j]._userId;
+                console.log(userId);
+                console.log(preCheckins[j]._userId);
+                console.log(venues[i].preChecked);
+                if (venues[i].preChecked.indexOf(userId) == -1)
+                  {venues[i].preChecked.push(userId)};
               }
             }
           }
-          res.send(results[0]);
+          res.send(venues);
+          /*console.log(venues[i].preChecked);
+          res.send(async.map(venues[i].preChecked, getPhotoUrl, function(err, results) {
+            if (!err) {
+              venues[i].preCheckedPhotos = results;
+              console.log(results);
+              return results[0];
+              }
+            else {console.log(err);}
+          }));
+          */
+
         }
     });
   });
@@ -211,7 +249,6 @@ module.exports = function (app, config) {
       _fromDate: new Date(req.body.fromDate),
       _toDate: toDate
     });
-    console.log(newCheckIn);
     newCheckIn.save(function(err, data) {
       if (err) {
         console.log(err);
@@ -231,8 +268,6 @@ module.exports = function (app, config) {
   function inTimeFrame(req, callback) {
     var reqFrom = new Date(req.query.fromDate);
     var reqTo = new Date(req.query.toDate);
-    console.log('###ReqFrom:' + reqFrom);
-    console.log('###ReqTo:' + reqTo);
     models.PreCheckIn.find()
     .where('_fromDate').lte(reqTo)
     .exec(function(err, data){
