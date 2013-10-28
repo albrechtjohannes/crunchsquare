@@ -208,6 +208,11 @@
         });
     };
 
+    var getPhotoHTML = function(user) {
+        url = user.photo.prefix + "36x36" + user.photo.suffix;
+        return '<img src=' + url + '>';
+    }
+
     var update = function(map, location, dom, clb) {
         if(!location) {
             return;
@@ -217,7 +222,6 @@
             lng: location.mb,
             lat: location.lb
         };
-
         $.ajax("/venue", {
             data: {
                 lng: location.mb,
@@ -227,6 +231,21 @@
             },
             success: function(venues) {
                 var checkins = [];
+                console.log(venues)
+                var filterCity = venues[0].location.city;
+
+
+                $.ajax("/friends", {
+                    data: {city:filterCity},
+                    success: function(friends) {
+                        html = '';
+                        $.each(friends, function(){
+                            html += getPhotoHTML(this);
+                        })
+                        $('.friendthumbs').html(html);
+                    }
+                })
+
 
                 $.each(venues, function() {
                     var venue = this;

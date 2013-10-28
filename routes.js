@@ -58,12 +58,27 @@ module.exports = function (app, config) {
     });
   });
 
+  function filterFriends(allFriends, city) {
+    var result = [];
+    for (var i=0; i<allFriends.length; i++) {
+      if (allFriends[i].homeCity.indexOf(city) != -1) {
+        result.push(allFriends[i]);
+      }
+    }
+    return result;
+  }
+
   app.get('/friends', function (req, res) {
     var friendsUrl = createUrl("https://api.foursquare.com/v2/users/self");
     request(friendsUrl, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        var result = JSON.parse(body);
-        res.send(result.response.user.friends.groups[1].items);
+        var result = JSON.parse(body).response.user.friends.groups[1].items;
+        if ("city" in req.query) {
+          res.send(filterFriends(result, req.query.city));
+        }
+        else {
+          res.send(result);
+        }
       }
     });
   });
