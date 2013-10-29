@@ -248,9 +248,13 @@
                     var venue = this;
                     var location = new google.maps.LatLng(venue.location.lat, venue.location.lng);
 
+                    var ids = [];
+                    var urls = [];
                     $.each(venue.preChecked || [], function() {
-                        if(checkins.indexOf(this.toString()) === -1) {
-                            checkins.push(this.toString());
+                        if(ids.indexOf(this._userId) === -1) {
+                            checkins.push({'name': this._userName, 'url': this._userPhotoUrl});
+                            ids.push(this._userId);
+                            urls.push(this._userPhotoUrl);
                         }
                     });
 
@@ -260,7 +264,7 @@
                         phone: venue.contact.formattedPhone,
                         web: venue.url,
                         users: venue.hereNow,
-                        checkins: venue.preChecked,
+                        checkins: urls,
                         address: {
                             street: venue.location.address,
                             city: venue.location.city
@@ -274,11 +278,8 @@
                 $.each(checkins, function() {
                     var entry = $(
                         "<span class='friend button tiny secondary'>" +
-
-                            this.toString() +
-                        "</span>"
-                    );
-
+                            this.name + " " + "<img src='" + this.url + "'></span>"
+                        );
                     slider.append(entry);
                 });
 

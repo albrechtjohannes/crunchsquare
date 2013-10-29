@@ -163,9 +163,7 @@ module.exports = function (app, config) {
             venues[i].preChecked = [];
             for (var j = 0; j < preCheckins.length; j++) {
               if (venues[i].id === preCheckins[j]._venueId) {
-                var userId = preCheckins[j]._userPhotoUrl;
-                if (venues[i].preChecked.indexOf(userId) == -1)
-                  {venues[i].preChecked.push(userId)};
+                venues[i].preChecked.push(preCheckins[j]);
               }
             }
           }
