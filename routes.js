@@ -164,14 +164,11 @@ module.exports = function (app, config) {
             for (var j = 0; j < preCheckins.length; j++) {
               if (venues[i].id === preCheckins[j]._venueId) {
                 var userId = preCheckins[j]._userPhotoUrl;
-                console.log(userId);
-                console.log(preCheckins[j]);
                 if (venues[i].preChecked.indexOf(userId) == -1)
                   {venues[i].preChecked.push(userId)};
               }
             }
           }
-          console.log(venues);
           res.send(venues);
           /*console.log(venues[i].preChecked);
           res.send(async.map(venues[i].preChecked, getPhotoUrl, function(err, results) {

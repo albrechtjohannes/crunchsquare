@@ -402,7 +402,6 @@
                     slider.find(".friend").remove();
                     for (var userId in friends) {
                         var value = friends[userId];
-                        console.log(userId);
                         var entry = $(
                             "<span class='friend button tiny secondary'>" +
                                 value.userName + " " + "<img src='" + value.userPhotoUrl + "'></span>"
