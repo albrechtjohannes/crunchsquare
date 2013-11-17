@@ -1,0 +1,7 @@
+div#settings(data-role="page", data-theme="a")
+  div(data-role="content")
+    div.center-wrapper
+    p Benutzer:
+      span#username-field #{user.username}
+    a(href="/logout", data-role="button", data-theme="e", rel="external") Logout
+  include footer

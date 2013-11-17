@@ -1,0 +1,24 @@
+!!!5
+html
+  head
+    include includes/head
+    include includes/scripts
+
+  body
+    include includes/header
+    div.row.padding-top
+      form#search(name="search", method="get")
+        div.column_3.offset_1
+          label(for="venue") Venue
+          input#venue(type="text", name="venue", placeholder="Enter venue")
+        div.column_3
+          label(for="city") City
+          input#city(type="text", name="city", placeholder="Enter city")
+        div.column_3
+          a.button.margin
+            span.icon.search Search
+
+    div.row.padding-top
+      div.column_12
+        div.row
+          div#venues

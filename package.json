@@ -1,13 +1,13 @@
 {
-  "name": "crunchbase",
+  "name": "zwinkapp",
   "version": "0.0.1",
   "dependencies": {
     "express": ">= 3.3.1",
-    "mongoose": ">= 3.6.13",
-    "request": ">= 1.2.32",
-    "node-foursquare": ">= 0.2.0",
-    "ejs": ">= 0.8.4",
-    "async": ">= 0.2.9"
+    "jade": ">= 0.32.0",
+    "oauth": ">= 0.9.10",
+    "request": ">= 2.27.0",
+    "async": ">= 0.2.9",
+    "mongodb": ">= 1.3.19"
   },
   "engines": {
     "node": "0.10.x",

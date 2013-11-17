@@ -1,0 +1,14 @@
+!!!5
+html
+  head
+    include includes/head
+    include includes/scripts
+
+  body
+    include includes/header
+    div.row.padding-top
+      div#contacts
+        each user in contacts
+          div.column_3.bck.light.padding
+            h3 #{user.display_name}
+            img(src="#{user.photo_urls.large}")

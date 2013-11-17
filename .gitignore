@@ -1,4 +1,2 @@
-views/stylesheets/css/*.css
 .DS_Store
 node_modules/
-keys/

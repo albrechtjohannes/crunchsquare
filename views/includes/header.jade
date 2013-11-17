@@ -1,0 +1,15 @@
+header.bck.light.padding-top
+  div.row.text.bold
+    nav.column_9(data-tuktuk="menu")
+      a(href="/")
+        h3.on-left preCheck.in
+        small for XING
+      a(href="/map") Map
+      a(href="/checkins") Checkins
+      a(href="/contacts") Contacts
+    - if (login == false)
+      nav.column_3.text.right
+        a(href="/login") Login
+    - else
+      nav.column_3.text.right
+        a(href="/logout") Logout
