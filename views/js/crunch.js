@@ -230,14 +230,16 @@
         }
 
         var latlng = {
-            lng: location.mb,
-            lat: location.lb
+            lng: location.pb,
+            lat: location.ob
         };
+
+        console.log(location);
 
         $.ajax("/venue", {
             data: {
-                lng: location.mb,
-                lat: location.lb,
+                lng: location.pb,
+                lat: location.ob,
                 fromDate: (new Date($(dom.data("from")).val())).toString(),
                 toDate: (new Date($(dom.data("till")).val())).toString()
             },
