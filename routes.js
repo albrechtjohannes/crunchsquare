@@ -73,7 +73,7 @@ module.exports = function (app, config, OAuth, mongoUri) {
                         lat: req.body.location.lat
                     },
                     userId: req.session.user_id,
-                    timestamp: new Date(),
+                    timestamp: new Date(req.body.date) || new Date(),
                     userName: user.name,
                     photo_urls: user.photo_urls
                 }, function(err, docs) {
@@ -97,7 +97,7 @@ module.exports = function (app, config, OAuth, mongoUri) {
     function findCheckinsByUsers(req, res, userIds, options) {
         var checkinsCollection = mongoDB.collection('checkins');
 
-        checkinsCollection.find({userId: {$in: userIds}}, {sort: {timestamp: 1}}).toArray(function(err, checkins) {
+        checkinsCollection.find({userId: {$in: userIds}, timestamp: {$gte: new Date()}}, {sort: {timestamp: 1}}).toArray(function(err, checkins) {
             if (err) {
                 console.log('failed');
             } else {
@@ -123,10 +123,10 @@ module.exports = function (app, config, OAuth, mongoUri) {
         });
     }
 
-    function getContacts(req, res, callback, options) {
+    function getContactsWithImage(req, res, callback, options) {
         var oa = createOAuth(req);
 
-        var fields = '?user_fields=display_name,photo_urls&limit=100';
+        var fields = '?user_fields=display_name,photo_urls,id&limit=100';
 
         oa.getProtectedResource(
             'https://api.xing.com/v1/users/me/contacts.json' + fields,
@@ -149,6 +149,24 @@ module.exports = function (app, config, OAuth, mongoUri) {
                         contacts: users,
                     });
                 }
+            }
+        );
+    }
+
+    function getContactsWithId(req, res, callback, options) {
+        var oa = createOAuth(req);
+
+        oa.getProtectedResource(
+            'https://api.xing.com/v1/users/me/contact_ids.json',
+            'GET',
+            req.session.oauth_access_token,
+            req.session.oauth_access_token_secret,
+            function (error, data, response) {
+                var userIds = JSON.parse(data).contact_ids.items;
+                if (options.me) {
+                    userIds = [req.session.user_id].concat(userIds);
+                }
+                callback(req, res, userIds, options);
             }
         );
     }
@@ -248,7 +266,7 @@ module.exports = function (app, config, OAuth, mongoUri) {
     });
 
     app.get('/contacts', restrict, function (req, res) {
-        getContacts(req, res);
+        getContactsWithImage(req, res);
     });
 
     app.get('/search', function (req, res) {
@@ -257,7 +275,7 @@ module.exports = function (app, config, OAuth, mongoUri) {
             res.send({});
         }
 
-        var url = 'https://api.foursquare.com/v2/venues/search?';
+        var url = 'https://api.foursquare.com/v2/venues/explore?';
         url += 'near=' + req.query.near;
         url += '&query=' + req.query.searchTerm;
         url += '&client_id=' + config.oauthFoursquare.clientId;
@@ -269,6 +287,20 @@ module.exports = function (app, config, OAuth, mongoUri) {
                 res.send(result);
             }
         });
+
+        // var url = 'https://api.foursquare.com/v2/venues/search?';
+        // url += 'near=' + req.query.near;
+        // url += '&query=' + req.query.searchTerm;
+        // url += '&intent=match';
+        // url += '&client_id=' + config.oauthFoursquare.clientId;
+        // url += '&client_secret=' + config.oauthFoursquare.clientSecret;
+        // url += '&v=20131116';
+        // request(url, function (error, response, body) {
+        //     if (!error && response.statusCode == 200) {
+        //         var result = JSON.parse(body).response;
+        //         res.send(result);
+        //     }
+        // });
     });
 
     app.post('/checkin', restrict, function (req, res) {
@@ -287,7 +319,7 @@ module.exports = function (app, config, OAuth, mongoUri) {
             friends: (req.query.friends === "true")
         };
         if (options.friends) {
-            getContacts(req, res, findCheckinsByUsers, options);
+            getContactsWithId(req, res, findCheckinsByUsers, options);
         } else {
             findCheckinsByUsers(req, res, [req.session.user_id], options);
         }

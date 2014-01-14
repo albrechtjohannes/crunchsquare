@@ -1,4 +1,4 @@
-!!!5
+doctype html
 html
   head
     include includes/head
@@ -9,6 +9,6 @@ html
     div.row.padding-top
       div#contacts
         each user in contacts
-          div.column_3.bck.light.padding
-            h3 #{user.display_name}
-            img(src="#{user.photo_urls.large}")
+          div.column_3.bck.light.padding-top.padding-bottom.margin-bottom(id="#{user.id}")
+            h5.align.center.margin-bottom #{user.display_name}
+            img.block.margin-auto(src="#{user.photo_urls.large}")

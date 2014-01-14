@@ -4,9 +4,10 @@ header.bck.light.padding-top
       a(href="/")
         h3.on-left preCheck.in
         small for XING
-      a(href="/map") Map
-      a(href="/checkins") Checkins
-      a(href="/contacts") Contacts
+      - if (login != false)
+        a(href="/map") Map
+        a(href="/checkins") Checkins
+        a(href="/contacts") Contacts
     - if (login == false)
       nav.column_3.text.right
         a(href="/login") Login

@@ -1,4 +1,4 @@
-!!!5
+doctype html
 html
   head
     include includes/head
@@ -7,5 +7,16 @@ html
   body
     include includes/header
     div.row
-      div.column_12
-        h1.text.center Welcome
+      div.column_12.margin#logo
+        img.block.margin-auto(src="images/logo.png")
+    div.row#landing-page
+      div.margin-top
+        div.column_4
+          h3.margin-bottom.text.bold.underline.center Locations
+          img.block.margin-auto(src="images/venues.png")
+        div.column_4
+          h3.margin-bottom.text.bold.underline.center Contacts
+          img.block.margin-auto(src="images/checkins.png")
+        div.column_4
+          h3.margin-bottom.text.bold.underline.center Maps
+          img.block.margin-auto(src="images/map.png")

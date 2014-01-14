@@ -2,11 +2,13 @@
 
     var currentMarker, currentInfoWindow;
 
-    var submitSearchForm = function(id) {
+    var submitSearchForm = function() {
         var form = $('#search').serializeArray();
 
-        var venue = form[0].value;
-        var city = form[1].value;
+        var city = form[0].value;
+        var venue = form[1].value;
+
+        $("#fs_search_results").empty();
 
         if (venue && city) {
             $.ajax('/search', {
@@ -15,16 +17,17 @@
                     near: city
                 },
                 success: function(data) {
-                    var venues = data.venues;
+                    var venues = data.groups[0].items;
+                    // var venues = data.venues;
                     var dom = $('#venues');
                     dom.empty();
                     for (var i = 0; i < venues.length; i++) {
-                        var venue = venues[i];
-                        if (venue.stats.checkinsCount>10) {
-                            // console.log(venue);
+                        var venue = venues[i].venue;
+                        // var venue = venues[i];
+                        if (venue.stats.checkinsCount >= 1 && venue.categories[0]) {
                             var s = '';
                             s += '<a href="#">';
-                            s += '<div class="column_4 margin-bottom padding bck light venue" id="' + venue.id + '">';
+                            s += '<div class="column_4 margin-bottom padding bck light venue" data-tuktuk-modal="checkin-dialog" id="' + venue.id + '">';
                             s += '<h4>' + venue.name + '<span class="icon plus on-right"></span></h4>';
                             s += '<div>';
                             s += (venue.location.city) ? '<small class="padding-right text bold">' + venue.location.city  +'</small>' : '';
@@ -34,25 +37,12 @@
 
                             $('#'+venue.id).data('location', venue.location);
                             $('#'+venue.id).data('venueName', venue.name);
+                        } else {
+                            console.log(venue);
                         }
                     }
 
-                    $('a .venue').click(function() {
-                        var location = $(this).data('location');
-                        var venueName = $(this).data('venueName');
-                        $.ajax('/checkin', {
-                            data: {
-                                location: location,
-                                venueName: venueName,
-                                venueId: this.id
-                            },
-                            type: 'POST',
-                            success: function(result) {
-                                console.log(result);
-                                window.location.href = "/map";
-                            }
-                        });
-                    });
+                    createModalView();
                 }
             });
         }
@@ -61,7 +51,7 @@
     function createInfoWindow(checkin) {
         var photoHtml = '';
         $.each((checkin.userImages || []), function() {
-            photoHtml += "<img src='" + this + "'>";
+            photoHtml += '<img class="padding-right"src="' + this + '">';
         });
 
         var content = $(
@@ -169,21 +159,21 @@
                     for (var i = 0; i < checkins.length; i++) {
                         var checkin = checkins[i];
                         var s = '';
-                        s += '<a href="#">';
-                        s += '<div class="margin-bottom padding bck light checkin" id="' + checkin._id + '">';
+                        s += '<div class="margin-bottom padding bck light" id="' + checkin._id + '">';
                         s += '<h3>' + checkin.venueName;
-                        s += (!item.friends) ? '<span class="icon remove on-right"></span>' : '<img class="on-right" src="' + checkin.photo_urls.medium_thumb + '"/>';
+                        s += (!item.friends) ? '<a href="#"><span class="icon remove on-right"></span></a>' : '<img class="on-right" src="' + checkin.photo_urls.medium_thumb + '"/>';
                         s += '</h3>';
-                        s += '<small class="padding-right text bold">' + new Date(checkin.timestamp).toDateString() + '</small>';
-                        s += '</div></a>';
+                        s += '<small class="padding-right text bold">' + new Date(checkin.timestamp).toLocaleString() + '</small>';
+                        s += '</div>';
                         dom.append(s);
                     }
                     if (!item.friends) {
-                        $('a .checkin').click(function() {
-                            var that = this;
+                        $('a .remove').click(function() {
+                            var that = this.parentElement.parentElement.parentElement;
+                            console.log(that);
                             $.ajax('/checkin', {
                                 data: {
-                                    id: this.id
+                                    id: that.id
                                 },
                                 type: 'DELETE',
                                 success: function(result) {
@@ -197,18 +187,143 @@
         });
     }
 
+    function getCheckinsPerUser() {
+        $.ajax('/checkin', {
+            data: {
+                friends: true,
+                me: false
+            },
+            success: function(checkins) {
+                console.log(checkins);
+                for (var i = 0; i < checkins.length; i++) {
+                    var checkin = checkins[i];
+                    var dom = $('#'+checkin.userId);
+                    var s = '';
+                    s += '<div class="padding bck light">';
+                    s += '<p class="text bold">' + checkin.venueName + "</p>";
+                    s += '<small class="padding-right">' + new Date(checkin.timestamp).toLocaleString() + '</small>';
+                    s += '</div>';
+                    dom.append(s);
+                }
+            }
+        });
+    }
+
     function getAutocompleter(selector) {
         return new google.maps.places.Autocomplete($(selector).get(0), {
             types: ['geocode']
         });
     }
 
+    function createTimeOptions(selects) {
+        selects.each(function() {
+            var i, j;
+
+            for(i = 0; i < 24; i = i + 1) {
+                for(j = 0; j < 60; j = j + 60) {
+                    var value = (i < 9 ? "0" + i : i) + ":" + (j < 9 ? "0" + j : j);
+                    var text = (i < 9 ? "0" + i : i) + ":" + (j < 9 ? "0" + j : j);
+                    var option = $("<option value='" + value + "'>" + text + "</option>");
+
+                    $(this).append(option);
+                }
+            }
+            $(".fromSelect").val("12:00");
+        });
+    }
+
+
+    function createModalView() {
+        var dialog = $(
+            "<div id='checkin-dialog' class='column_8' data-tuktuk='modal'>" +
+                "<header class='bck color'>" +
+                    "<h4>Check-In</h4>" +
+                "</header>" +
+                "<article>" +
+                    "<form>" +
+                        "<fieldset class='time'>" +
+                            "<label>" +
+                                "<input type='hidden' class='date from' data-trigger='#checkin-dialog .button.from' />" +
+                                "<a href='javascript:void(0)' class='button from secondary'>" +
+                                    "<span class='icon calendar'></span> " +
+                                    "<span class='content'>Date</span>" +
+                                "</a>" +
+                            "</label>" +
+                            "<select class='fromSelect'></select>" +
+                        "</fieldset>" +
+                    "</form>" +
+                "</article>" +
+                "<footer>" +
+                    "<button class='secondary margin' data-modal='close'>" +
+                        "<span class='icon remove'></span> " +
+                        "Close" +
+                    "</button>" +
+                    "<button class='checkin bck color margin'>" +
+                        "<i class='fa fa-foursquare'></i> " +
+                        "preCheck-In" +
+                    "</button>" +
+                "</footer>" +
+            "</div>"
+        );
+
+        $("body").append(dialog);
+
+        createTimeOptions(dialog.find("select"));
+
+        dialog.find("form .date").each(function() {
+            var input = $(this);
+
+            input.datepicker({
+                onSelect: function(date) {
+                    trigger.children(".content").html(date);
+                }
+            });
+
+            var trigger = $(input.data("trigger"));
+            trigger.click(function() {
+                input.datepicker("show");
+            });
+        });
+
+        $("[data-tuktuk-modal]").click(function() {
+            $('#checkin-dialog').data('venueId', $(this).get(0).id);
+            $('#checkin-dialog').data('location', $(this).data('location'));
+            $('#checkin-dialog').data('venueName', $(this).data('venueName'));
+            return TukTuk.Modal.show(TukTuk.dom(this).attr('data-tuktuk-modal'));
+        });
+
+        $("[data-tuktuk=modal] [data-modal=close]").click(function() {
+            return TukTuk.Modal.hide();
+        });
+
+        dialog.find(".checkin").click(function() {
+            var location = $('#checkin-dialog').data('location');
+            var venueName = $('#checkin-dialog').data('venueName');
+            var venueId = $('#checkin-dialog').data('venueId');
+            $.ajax("/checkin", {
+                data: {
+                    location: location,
+                    venueName: venueName,
+                    venueId: venueId,
+                    date: new Date(dialog.find(".from").val() + "/" + dialog.find(".fromSelect").val()).toString(),
+                },
+                type: "POST",
+                success: function(data) {
+                    TukTuk.Modal.hide();
+                    console.log(data);
+                    window.location.href = "/map";
+                }
+            });
+        });
+    }
+
     $(document).ready(function() {
-        var contentHeight = $('body').height() - $('header').height() - 3 * (parseInt($('header').css('padding')));
+        var contentHeight = $('body').height() - $('header').height() - 48;
 
         $('#map').height(contentHeight);
+        $('#map').height();
 
-        $('#search a').click(submitSearchForm);
+        $('#search-btn').click(submitSearchForm);
 
         $('form').submit(function() {
             return false;
@@ -224,13 +339,25 @@
             getCheckins();
         }
 
-        $("input[name='city']").keypress(function(e) {
+        if (location.pathname === '/contacts') {
+            getCheckinsPerUser();
+        }
+
+        $('#venue').fs_suggest({
+            client_id: 'PSK5SC5EPW2DJ2CA5OQI5CBFMMFOH3UGKZZ0IEBQLEIYNVOW',
+            client_secret: 'QVYG524JV02VUJTYLFC2CAIO5W544R30XCRESYB04NN0GYKE',
+            ll: '',
+            nearSelector: "city",
+            limit: 10
+        });
+
+        $('#venue').keypress(function(e) {
             if (e.keyCode == 13) {
                 $('#search a').click();
             }
         });
 
-        // $('a[href="' + location.pathname + '"').addClass('active');
+        $('a[href="' + location.pathname + '"]').addClass('active');
 
     });
 

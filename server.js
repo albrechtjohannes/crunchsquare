@@ -1,5 +1,4 @@
-var application_root = __dirname,
-    express = require('express'),
+var express = require('express'),
     jade = require('jade'),
     http = require('http'),
     OAuth = require('oauth').OAuth,
@@ -14,7 +13,7 @@ var config = {
         accessUrl: 'https://api.xing.com/v1/access_token',
         consumerKey: '66a1da2f06ffdafbf79a',
         consumerSecret: '13824ff0c12c83db17d62029cc3e51eb0ff8d8f6',
-        authorize_callback: 'http://localhost:5000/auth',
+        authorize_callback: (process.env.PORT) ? 'http://precheckin.herokuapp.com/auth' : 'http://localhost:5000/auth', // http://localhost:5000/auth http://precheckin.herokuapp.com/auth
         version: '1.0',
         signatureMethod: 'HMAC-SHA1'
     },
@@ -51,7 +50,7 @@ require("./routes")(app, config, OAuth, mongoUri);
 function startKeepAlive() {
     setInterval(function() {
         var options = {
-            host: 'zwinkapp.herokuapp.com',
+            host: 'precheckin.herokuapp.com',
             port: 80,
             path: '/'
         };
