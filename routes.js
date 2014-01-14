@@ -111,9 +111,10 @@ module.exports = function (app, config) {
         if (req.query.fromDate === "Invalid Date") {
           if (req.query.toDate === "Invalid Date") {
             var params = {
-              "ll": req.query.lat + "," + req.query.lng,
-              "categoryId": "4eb1bc533b7b2c5b1d4306cb",
-              "query": "Lufthansa"
+              //"ll": req.query.lat + "," + req.query.lng,
+              //"categoryId": "4bf58dd8d48988d11f941735", //Clubs
+              "ll": "52.23,13.04",
+              "categoryId": "4bf58dd8d48988d1e5931735", //MusicVenuess
               // "intent": "browse"
             };
             var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
@@ -131,9 +132,10 @@ module.exports = function (app, config) {
             callback(null, []);
           } else {
             var params = {
-              "ll": req.query.lat + "," + req.query.lng,
-              "categoryId": "4eb1bc533b7b2c5b1d4306cb",
-              "query": "Lufthansa"
+              //"ll": req.query.lat + "," + req.query.lng,
+              "ll": "52.23,13.04",
+              "categoryId": "4bf58dd8d48988d1e5931735",
+              //"query": "Lufthansa"
               // "intent": "browse"
             };
             var venueUrl = createUrl("https://api.foursquare.com/v2/venues/search", params);
